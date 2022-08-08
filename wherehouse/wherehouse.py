@@ -11,7 +11,7 @@ from typing import Dict
 
 class Wherehouse:
     """
-    Default Wherehous class that uses a SQLite database as the backend storage of the
+    Default Wherehouse class that uses a SQLite database as the backend storage of the
     parquet metadata
     """
 
