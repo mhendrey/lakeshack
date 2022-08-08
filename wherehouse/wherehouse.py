@@ -6,7 +6,7 @@ from pyarrow import fs
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import sqlite3
-from typing import Dict
+from typing import Dict, List
 
 
 class Wherehouse:
@@ -111,7 +111,7 @@ class Wherehouse:
 
     def update(self, parquet_file_or_dir: str, n_threads: int = 16):
         """
-        Add file level metadata to the metastore. If you provide a dirctory, then a
+        Add file level metadata to the metastore. If you provide a directory, then a
         recursive walk is done. Any non-parquet files are simply skipped and logged.
 
         Example:
@@ -146,9 +146,32 @@ class Wherehouse:
     def query(
         self,
         cluster_column_value,
+        columns: List[str] = None,
         batch_size: int = 131072,
         n_max_results: int = 2000000,
     ):
+        """
+        Retrieve records from the parquet files where
+            "cluster_column == cluster_column_value"
+        in batches of batch_size. Stop returning results if n_max_results have already
+        been returned
+
+        Parameters
+        ----------
+        cluster_column_value
+            cluster_column value you want to match on
+        columns : List[str], optional
+            The columns to return from parquet files. Default is None (all of them)
+        batch_size : int, optional
+            Retrieve batches of this size from the dataset. Lower this value to manage
+            RAM if needed. Default is 128 * 1024, same as pyarrow.Dataset.to_batches()
+        n_max_results : int, optional
+            Stop yielding results if this many records have already been returned
+        
+        Yields
+        ------
+        pa.lib.Table
+        """
         cur = self.conn.cursor()
         cluster_min = f"{self.arrow_columns[0]}_min"
         cluster_max = f"{self.arrow_columns[0]}_max"
@@ -167,6 +190,7 @@ class Wherehouse:
 
         dataset = ds.dataset(filepaths, format="parquet", filesystem=self.file_system)
         record_batches = dataset.to_batches(
+            columns=columns,
             filter=ds.field(self.arrow_columns[0]) == cluster_column_value,
             batch_size=batch_size,
         )
