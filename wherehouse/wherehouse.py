@@ -25,7 +25,7 @@ class Wherehouse:
         *optional_columns,
     ):
         """
-        Establish a connection to the wherehous. If store_table already exists in the
+        Establish a connection to the wherehouse. If store_table already exists in the
         wherehouse then arrow_schema, cluster_column, and optional_columns are ignored.
         If the store_table does not already exist, then you must provide arrow_schema
         and cluster_column in order to create it. Any additional columns provided will
