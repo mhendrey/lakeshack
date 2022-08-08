@@ -3,6 +3,7 @@
 from concurrent.futures import as_completed, ThreadPoolExecutor
 import pyarrow as pa
 from pyarrow import fs
+import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import sqlite3
 from typing import Dict, List, Tuple
@@ -15,6 +16,7 @@ class Metastore:
 
     def __init__(
         self,
+        file_system: fs.FileSystem,
         store_args: Dict,
         store_table: str,
         arrow_schema: pa.lib.Schema = None,
@@ -47,6 +49,8 @@ class Metastore:
 
         Parameters
         ----------
+        file_system : fs.FileSystem
+            pyarrow file system. E.g., fs.S3FileSystem or fs.LocalSystem
         store_args : Dict
             Dictionary arguments for connecting to the metastore.
         store_table : str
@@ -59,6 +63,7 @@ class Metastore:
             Optional column names to included in the metastore
 
         """
+        self.file_system = file_system
         self.store_args = store_args
         self.store_table = store_table
         self.placeholder = "?"
@@ -99,19 +104,15 @@ class Metastore:
             self._create_table(arrow_schema)
             self._create_indices()
 
-    def update(
-        self, parquet_file_or_dir: str, file_system: fs.FileSystem, n_threads: int = 16
-    ):
+    def update(self, parquet_file_or_dir: str, n_threads: int = 16):
         """
         Add file level metadata to the metastore. If you provide a dirctory, then a
         recursive walk is done. Any non-parquet files are simply skipped and logged.
 
         Example:
         ```
-        from pyarrow import fs
-        local_fs = fs.LocalFileSystem()
         parquet_dir = "path/on/local/to/parquets/"
-        metastore.update(parquet_dir, local_fs)
+        metastore.update(parquet_dir)
         ```
 
         Parameters
@@ -119,13 +120,11 @@ class Metastore:
         parquet_file_or_dir : str
             Provide the filepath to either a single parquet file or a directory that
             contains many parquet files.
-        file_system : fs.FileSystem
-            pyarrow file system. E.g., fs.S3FileSystem or fs.LocalSystem
         n_threads : int, optional
             Size of the thread pool used to concurrently retrieve parquet file
             metadata. Default is 16
         """
-        metadata = self._gather_metadata(parquet_file_or_dir, file_system, n_threads)
+        metadata = self._gather_metadata(parquet_file_or_dir, n_threads)
 
         if not metadata:
             print(f"No metadata found in {parquet_file_or_dir}")
@@ -138,6 +137,42 @@ class Metastore:
         )
         cur.close()
         self.conn.commit()
+
+    def query(
+        self,
+        cluster_column_value,
+        batch_size: int = 131072,
+        n_max_results: int = 2000000,
+    ):
+        cur = self.conn.cursor()
+        cluster_min = f"{self.arrow_columns[0]}_min"
+        cluster_max = f"{self.arrow_columns[0]}_max"
+        cur.execute(
+            f"""
+            SELECT filepath
+            FROM {self.store_table}
+            WHERE {self.placeholder} >= {cluster_min}
+              AND {self.placeholder} <= {cluster_max}
+            ;
+            """,
+            (cluster_column_value, cluster_column_value),
+        )
+        filepaths = [f[0] for f in cur.fetchall()]
+        cur.close()
+
+        dataset = ds.dataset(filepaths, format="parquet", filesystem=self.file_system)
+        record_batches = dataset.to_batches(
+            filter=ds.field(self.arrow_columns[0]) == cluster_column_value,
+            batch_size=batch_size,
+        )
+
+        n_results = 0
+        for record_batch in record_batches:
+            if record_batch.num_rows > 0:
+                n_results += record_batch.num_rows
+                yield pa.Table.from_batches([record_batch])
+            if n_results > n_max_results:
+                return None
 
     def __del__(self):
         try:
@@ -267,19 +302,17 @@ class Metastore:
 
         return {"error_msg": f"SUCCESS for {filepath}", "data": tuple(data)}
 
-    def _gather_metadata(
-        self, parquet_dir, file_system: fs.FileSystem, n_threads: int = 16
-    ):
-        if file_system.get_file_info(parquet_dir).is_file:
+    def _gather_metadata(self, parquet_dir, n_threads: int = 16):
+        if self.file_system.get_file_info(parquet_dir).is_file:
             filepaths = [parquet_dir]
         else:
             file_selector = fs.FileSelector(parquet_dir, recursive=True)
-            filepaths = [f.path for f in file_system.get_file_info(file_selector)]
+            filepaths = [f.path for f in self.file_system.get_file_info(file_selector)]
 
         # Gather the mapping from column names to column idx in Parquet file
         arrow_columns_idx = []
         try:
-            pq_file = pq.ParquetFile(file_system.open_input_file(filepaths[0]))
+            pq_file = pq.ParquetFile(self.file_system.open_input_file(filepaths[0]))
         except pa.ArrowException as exc:
             print(f"ERROR for {filepaths[0]}, {exc}")
             return []
@@ -291,7 +324,10 @@ class Metastore:
         with ThreadPoolExecutor(n_threads) as ex:
             future_to_path = {
                 ex.submit(
-                    Metastore._get_min_max, filepath, arrow_columns_idx, file_system,
+                    Metastore._get_min_max,
+                    filepath,
+                    arrow_columns_idx,
+                    self.file_system,
                 ): filepath
                 for filepath in filepaths
             }
