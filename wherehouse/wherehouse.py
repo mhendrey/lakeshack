@@ -38,10 +38,9 @@ class Wherehouse:
         import pyarrow.parquet as pd
         from pyarrow import fs
 
-        local_fs = fs.LocalFileSystem()
         pq_file = pyarrow.parquet.ParquetFile("some.parquet")
         wherehouse = Wherehouse(
-            loca_ls,
+            fs.LocalFileSystem(),
             {"database": "some.db"},
             "some_table",
             pq_file.schema_arrow,
