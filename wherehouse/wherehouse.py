@@ -6,12 +6,13 @@ from pyarrow import fs
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import sqlite3
-from typing import Dict, List, Tuple
+from typing import Dict
 
 
-class Metastore:
+class Wherehouse:
     """
-    Default Metastore class that uses a SQLite database as the metastore
+    Default Wherehous class that uses a SQLite database as the backend storage of the
+    parquet metadata
     """
 
     def __init__(
@@ -24,8 +25,8 @@ class Metastore:
         *optional_columns,
     ):
         """
-        Establish a connection to the metastore. If store_table already exists in the
-        metastore then arrow_schema, cluster_column, and optional_columns are ignored.
+        Establish a connection to the wherehous. If store_table already exists in the
+        wherehouse then arrow_schema, cluster_column, and optional_columns are ignored.
         If the store_table does not already exist, then you must provide arrow_schema
         and cluster_column in order to create it. Any additional columns provided will
         also be created along with the cluster_column in store_table. For best
@@ -34,8 +35,13 @@ class Metastore:
         Example:
 
         ```
+        import pyarrow.parquet as pd
+        from pyarrow import fs
+
+        local_fs = fs.LocalFileSystem()
         pq_file = pyarrow.parquet.ParquetFile("some.parquet")
-        metastore = Metastore(
+        wherehouse = Wherehouse(
+            loca_ls,
             {"database": "some.db"},
             "some_table",
             pq_file.schema_arrow,
@@ -279,10 +285,11 @@ class Metastore:
         cur.close()
         self.conn.commit()
 
-    @staticmethod
-    def _get_min_max(filepath, column_idxs, file_system):
+    def _get_min_max(self, filepath, column_idxs):
         try:
-            metadata = pq.ParquetFile(file_system.open_input_file(filepath)).metadata
+            metadata = pq.ParquetFile(
+                self.file_system.open_input_file(filepath)
+            ).metadata
         except pa.ArrowException as exc:
             return {"error_msg": f"ERROR for {filepath}: {exc}", "data": ()}
 
@@ -323,12 +330,7 @@ class Metastore:
         metadata = []
         with ThreadPoolExecutor(n_threads) as ex:
             future_to_path = {
-                ex.submit(
-                    Metastore._get_min_max,
-                    filepath,
-                    arrow_columns_idx,
-                    self.file_system,
-                ): filepath
+                ex.submit(self._get_min_max, filepath, arrow_columns_idx): filepath
                 for filepath in filepaths
             }
             for future in as_completed(future_to_path):
@@ -345,4 +347,3 @@ class Metastore:
                         print(result["error_msg"])
 
         return metadata
-
