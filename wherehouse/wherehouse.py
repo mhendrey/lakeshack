@@ -6,7 +6,7 @@ from pyarrow import fs
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import sqlite3
-from typing import Dict, List
+from typing import Dict, List, Union
 
 
 class Wherehouse:
@@ -145,7 +145,7 @@ class Wherehouse:
 
     def query(
         self,
-        cluster_column_value,
+        cluster_column_values,
         columns: List[str] = None,
         batch_size: int = 131072,
         n_max_results: int = 2000000,
@@ -158,50 +158,64 @@ class Wherehouse:
 
         Parameters
         ----------
-        cluster_column_value
-            cluster_column value you want to match on
+        cluster_column_values : Union[str, List]
+            cluster_column value you want to match on. Provide one or a list of many
         columns : List[str], optional
             The columns to return from parquet files. Default is None (all of them)
         batch_size : int, optional
             Retrieve batches of this size from the dataset. Lower this value to manage
             RAM if needed. Default is 128 * 1024, same as pyarrow.Dataset.to_batches()
         n_max_results : int, optional
-            Stop yielding results if this many records have already been returned
+            Once this many results have been exceed, stop retrieving results and return
+            what has been retrieved so far. Thus, the Table.num_rows returned will be
+            less than or equal to n_max_results + batch_size.
         
-        Yields
-        ------
+        Returns
+        -------
         pa.lib.Table
         """
+        if not isinstance(cluster_column_values, list):
+            cluster_column_values = [cluster_column_values]
+
         cur = self.conn.cursor()
         cluster_min = f"{self.arrow_columns[0]}_min"
         cluster_max = f"{self.arrow_columns[0]}_max"
-        cur.execute(
-            f"""
-            SELECT filepath
-            FROM {self.store_table}
-            WHERE {self.placeholder} >= {cluster_min}
-              AND {self.placeholder} <= {cluster_max}
-            ;
-            """,
-            (cluster_column_value, cluster_column_value),
-        )
-        filepaths = [f[0] for f in cur.fetchall()]
+        filepaths = set()
+        for cluster_column_value in cluster_column_values:
+            cur.execute(
+                f"""
+                SELECT filepath
+                FROM {self.store_table}
+                WHERE {self.placeholder} >= {cluster_min}
+                AND {self.placeholder} <= {cluster_max}
+                ;
+                """,
+                (cluster_column_value, cluster_column_value),
+            )
+            filepaths.update([f[0] for f in cur.fetchall()])
         cur.close()
+        filepaths = sorted(filepaths)
+
+        # Construct the cluster_column values filter. "or" the results
+        ds_filter = ds.field(self.arrow_columns[0]) == cluster_column_values[0]
+        for cluster_value in cluster_column_values[1:]:
+            ds_filter = ds_filter | (ds.field(self.arrow_columns[0]) == cluster_value)
 
         dataset = ds.dataset(filepaths, format="parquet", filesystem=self.file_system)
         record_batches = dataset.to_batches(
-            columns=columns,
-            filter=ds.field(self.arrow_columns[0]) == cluster_column_value,
-            batch_size=batch_size,
+            columns=columns, filter=ds_filter, batch_size=batch_size,
         )
 
         n_results = 0
+        batches = []
         for record_batch in record_batches:
             if record_batch.num_rows > 0:
                 n_results += record_batch.num_rows
-                yield pa.Table.from_batches([record_batch])
+                batches.append(record_batch)
             if n_results > n_max_results:
-                return None
+                break
+
+        return pa.Table.from_batches(batches)
 
     def __del__(self):
         try:
@@ -246,20 +260,11 @@ class Wherehouse:
         str
             Corresponding storage class for the database
         """
-        if pa_type == pa.large_string() or pa_type == pa.string():
+        if pa.types.is_string(pa_type) or pa.types.is_large_string(pa_type):
             return "TEXT"
-        elif pa_type in [
-            pa.int64(),
-            pa.int32(),
-            pa.int16(),
-            pa.int8(),
-            pa.uint64(),
-            pa.uint32(),
-            pa.uint16(),
-            pa.uint8(),
-        ]:
+        elif pa.types.is_integer(pa_type):
             return "INTEGER"
-        elif pa_type in [pa.float64(), pa.float32(), pa.float64()]:
+        elif pa.types.is_floating(pa_type):
             return "REAL"
         # TODO: Add in date/time mappings
 
@@ -337,7 +342,11 @@ class Wherehouse:
             filepaths = [parquet_dir]
         else:
             file_selector = fs.FileSelector(parquet_dir, recursive=True)
-            filepaths = [f.path for f in self.file_system.get_file_info(file_selector)]
+            filepaths = [
+                f.path
+                for f in self.file_system.get_file_info(file_selector)
+                if f.type == fs.FileType.File
+            ]
 
         # Gather the mapping from column names to column idx in Parquet file
         arrow_columns_idx = []
