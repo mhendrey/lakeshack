@@ -1,6 +1,10 @@
 # import mysql.connector as mysql
 # import psycopg2
+import boto3
+from botocore.exceptions import ClientError
+from collections import defaultdict
 from concurrent.futures import as_completed, ThreadPoolExecutor
+import logging
 import pyarrow as pa
 from pyarrow import fs
 import pyarrow.dataset as ds
@@ -143,6 +147,169 @@ class Wherehouse:
         cur.close()
         self.conn.commit()
 
+    def _construct_sql_statement(
+        self, cluster_values: List, columns: List[str] = None, where_clause: str = None,
+    ):
+        if columns:
+            proj_col = ""
+            for i, col_name in enumerate(columns):
+                if i == 0:
+                    proj_col += f"s.{col_name}"
+                else:
+                    proj_col += f", s.{col_name}"
+        else:
+            proj_col = "*"
+
+        where_statement = "("
+        for i, cluster_value in enumerate(cluster_values):
+            if i == 0:
+                where_statement += f"{self.arrow_columns[0]}='{cluster_value}'"
+            else:
+                where_statement += f" or {self.arrow_columns[0]}='{cluster_value}'"
+        where_statement += ")"
+
+        if where_clause:
+            where_statement += f" and ({where_clause})"
+
+        sql_statement = f"""
+            SELECT {proj_col}
+            FROM s3object s
+            WHERE {where_statement}
+        """
+
+        return sql_statement
+
+    def _select_worker(
+        self, s3_client, filepath, cluster_values, columns=None, where_clause=None
+    ):
+        bucket = filepath.split("/")[0]
+        key = "/".join(filepath.split("/")[1:])
+
+        sql_statement = self._construct_sql_statement(
+            cluster_values, columns, where_clause
+        )
+
+        try:
+            response = s3_client.select_object_content(
+                Bucket=bucket,
+                Key=key,
+                Expression=sql_statement,
+                ExpressionType="SQL",
+                InputSerialization={"Parquet": {}},
+                OutputSerialization={"JSON": {"RecordDelimiter": "\n"}},
+            )
+        except ClientError as exc:
+            logging.error(f"_select_worker threw :{exc}")
+            return {"data": None, "error_msg": f"ERROR: {filepath} gave {exc}"}
+
+        # I have no idea what "records" is.  Supposedly newline delimited
+        # JSON, but no idea if this is giving me an array or just some nasty
+        # string (which is what I suspect) with no idea how to transform that
+        # until I see it.
+        for event in response["Payload"]:
+            if "Records" in event:
+                records = event["Records"]["Payload"].decode("utf-8")
+                return records
+
+    def query_s3_select(
+        self,
+        cluster_column_values,
+        columns: List[str] = None,
+        where_clause: str = None,
+        n_max_results: int = 2000000,
+        n_threads: int = 20,
+    ):
+        if not isinstance(self.file_system, fs.S3FileSystem):
+            raise TypeError(f"file_system must be S3. You have {self.file_system}")
+
+        if not isinstance(cluster_column_values, list):
+            cluster_column_values = [cluster_column_values]
+
+        s3 = boto3.client(region_name=self.file_system.region)
+
+        filepaths_to_cluster_values = self.get_parquet_files(cluster_column_values)
+
+        results = []
+        with ThreadPoolExecutor(n_threads) as executor:
+            future_to_file = {}
+            for filepath, cluster_values in filepaths_to_cluster_values.items():
+                future = executor.submit(
+                    self._select_worker,
+                    s3,
+                    filepath,
+                    cluster_values,
+                    columns,
+                    where_clause,
+                )
+                future_to_file[future] = filepath
+            check = False
+            for future in as_completed(future_to_file):
+                filepath = future_to_file[future]
+                try:
+                    data = future.result()
+                except Exception as exc:
+                    logging.ERROR(f"{filepath} threw {exc}")
+                else:
+                    results += data
+                    if len(results) > n_max_results:
+                        check = True
+                        break
+            while check:
+                check = False
+                for future in future_to_file:
+                    if not future.done():
+                        future.cancel()
+                        check = True
+
+        return results
+
+    def get_parquet_files(
+        self, cluster_column_values: List, other_column_values: Dict = None,
+    ) -> Dict[str, List[str]]:
+        """
+        Given the `cluster_column_values` return the filepaths of the parquet
+        files whose min/max contains a cluster_column_value.
+
+        NOTE: other_column_values is not implemented yet and will be ignored
+
+        Parameters
+        ----------
+        cluster_column_values : List
+            List of cluster column values of interest.
+        other_column_values : Dict
+            Future capability to also use any additional columns that have been
+            gathered into the wherehouse metastore.
+
+        Returns
+        -------
+        Dict[str, List[str]]
+            Keys are the filepaths to the parquet files. Values are a list of
+            the cluster column values associated with that parquet file
+        """
+        if other_column_values is not None:
+            print("WARNING: other_column_values not implemented yet. Ignoring")
+
+        pq_files = defaultdict(list)
+
+        cur = self.conn.cursor()
+        cluster_min = f"{self.arrow_columns[0]}_min"
+        cluster_max = f"{self.arrow_columns[0]}_max"
+        for cluster_column_value in cluster_column_values:
+            cur.execute(
+                f"""
+                SELECT filepath
+                FROM {self.store_table}
+                WHERE {self.placeholder} >= {cluster_min}
+                AND {self.placeholder} <= {cluster_max}
+                ;
+                """,
+                (cluster_column_value, cluster_column_value),
+            )
+            for (filepath,) in cur.fetchall():
+                pq_files[filepath].append(cluster_column_value)
+        cur.close()
+        return pq_files
+
     def query(
         self,
         cluster_column_values,
@@ -169,7 +336,7 @@ class Wherehouse:
             Once this many results have been exceed, stop retrieving results and return
             what has been retrieved so far. Thus, the Table.num_rows returned will be
             less than or equal to n_max_results + batch_size.
-        
+
         Returns
         -------
         pa.lib.Table
@@ -177,24 +344,8 @@ class Wherehouse:
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
 
-        cur = self.conn.cursor()
-        cluster_min = f"{self.arrow_columns[0]}_min"
-        cluster_max = f"{self.arrow_columns[0]}_max"
-        filepaths = set()
-        for cluster_column_value in cluster_column_values:
-            cur.execute(
-                f"""
-                SELECT filepath
-                FROM {self.store_table}
-                WHERE {self.placeholder} >= {cluster_min}
-                AND {self.placeholder} <= {cluster_max}
-                ;
-                """,
-                (cluster_column_value, cluster_column_value),
-            )
-            filepaths.update([f[0] for f in cur.fetchall()])
-        cur.close()
-        filepaths = sorted(filepaths)
+        filepaths_to_cluster_values = self.get_parquet_files(cluster_column_values)
+        filepaths = list(filepaths_to_cluster_values.keys())
 
         # Construct the cluster_column values filter. "or" the results
         ds_filter = ds.field(self.arrow_columns[0]) == cluster_column_values[0]
@@ -266,6 +417,10 @@ class Wherehouse:
             return "INTEGER"
         elif pa.types.is_floating(pa_type):
             return "REAL"
+        elif pa.types.is_date(pa_type):
+            return "TEXT"
+        elif pa.types.is_timestamp(pa_type):
+            return "TEXT"
         # TODO: Add in date/time mappings
 
     def _create_table(self, arrow_schema: pa.lib.Schema):
@@ -277,7 +432,7 @@ class Wherehouse:
         ----------
         arrow_schema : pa.lib.Schema,
             Arrow schema of the parquet files
-        
+
         Returns
         -------
         None
