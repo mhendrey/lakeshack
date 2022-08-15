@@ -133,9 +133,7 @@ class Wherehouse:
 
         s3 = boto3.client(region_name=self.file_system.region)
 
-        filepaths_to_cluster_values = self.metastore.get_parquet_files(
-            cluster_column_values
-        )
+        filepaths_to_cluster_values = self.metastore.query(cluster_column_values)
 
         results = []
         with ThreadPoolExecutor(n_threads) as executor:
@@ -205,9 +203,7 @@ class Wherehouse:
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
 
-        filepaths_to_cluster_values = self.metastore.get_parquet_files(
-            cluster_column_values
-        )
+        filepaths_to_cluster_values = self.metastore.query(cluster_column_values)
         filepaths = list(filepaths_to_cluster_values.keys())
 
         # Construct the cluster_column values filter. "or" the results

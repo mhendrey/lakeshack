@@ -253,7 +253,7 @@ class Metastore:
 
         return metadata
 
-    def get_parquet_files(
+    def query(
         self, cluster_column_values: List, other_column_values: Dict = None,
     ) -> Dict[str, List[str]]:
         """
