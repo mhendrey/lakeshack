@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 import pyarrow as pa
 from pyarrow import fs
-import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 import sqlite3
 from typing import Dict, List, Tuple, Union
