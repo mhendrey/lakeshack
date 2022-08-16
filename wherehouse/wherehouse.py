@@ -3,6 +3,7 @@
 import boto3
 from botocore.exceptions import ClientError
 from concurrent.futures import as_completed, ThreadPoolExecutor
+import json
 import logging
 import pyarrow as pa
 from pyarrow import fs
@@ -85,9 +86,8 @@ class Wherehouse:
 
         return sql_statement
 
-    def _select_worker(
-        self, s3_client, filepath, cluster_values, columns=None, where_clause=None
-    ):
+    def _select_worker(self, filepath, cluster_values, columns=None, where_clause=None):
+        s3_client = boto3.session.Session("s3", region_name=self.file_system.region)
         bucket = filepath.split("/")[0]
         key = "/".join(filepath.split("/")[1:])
 
@@ -108,14 +108,25 @@ class Wherehouse:
             logging.error(f"_select_worker threw :{exc}")
             return {"data": None, "error_msg": f"ERROR: {filepath} gave {exc}"}
 
-        # I have no idea what "records" is.  Supposedly newline delimited
-        # JSON, but no idea if this is giving me an array or just some nasty
-        # string (which is what I suspect) with no idea how to transform that
-        # until I see it.
+        records = []
         for event in response["Payload"]:
             if "Records" in event:
-                records = event["Records"]["Payload"].decode("utf-8")
-                return records
+                result = event["Records"]["Payload"].decode("utf-8")
+                for s in result.split("\n"):
+                    if s:
+                        try:
+                            record = json.loads(s)
+                        except Exception as exc:
+                            logging.error(f"Failed to json load {s}: {exc}")
+                        else:
+                            records.append(record)
+            # TODO: Log the stats
+            elif "Stats" in event:
+                statsDetails = event["Stats"]["Details"]
+                bytes_scanned = statsDetails["BytesScanned"]
+                bytes_processed = statsDetails["BytesProcessed"]
+
+        return records
 
     def query_s3_select(
         self,
@@ -131,8 +142,6 @@ class Wherehouse:
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
 
-        s3 = boto3.client(region_name=self.file_system.region)
-
         filepaths_to_cluster_values = self.metastore.query(cluster_column_values)
 
         results = []
@@ -141,7 +150,6 @@ class Wherehouse:
             for filepath, cluster_values in filepaths_to_cluster_values.items():
                 future = executor.submit(
                     self._select_worker,
-                    s3,
                     filepath,
                     cluster_values,
                     columns,
