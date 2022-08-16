@@ -52,6 +52,13 @@ class Wherehouse:
         self.metastore = metastore
         self.file_system = file_system
 
+        self.logger = logging.getLogger("wherehouse")
+        self.logger.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            "%(asctime)s %(name)s %(levelname)s: %(message)s", "%Y-%m-%d %H:%M:%S"
+        )
+        self.logger.addHandler(logging.StreamHandler().setFormatter(formatter))
+
     def _construct_sql_statement(
         self, cluster_values: List, columns: List[str] = None, where_clause: str = None,
     ):
@@ -105,10 +112,12 @@ class Wherehouse:
                 OutputSerialization={"JSON": {"RecordDelimiter": "\n"}},
             )
         except ClientError as exc:
-            logging.error(f"_select_worker threw :{exc}")
+            self.logger.error(f"_select_worker threw :{exc}")
             return {"data": None, "error_msg": f"ERROR: {filepath} gave {exc}"}
 
         records = []
+        bytes_scanned = 0
+        bytes_processed = 0
         for event in response["Payload"]:
             if "Records" in event:
                 result = event["Records"]["Payload"].decode("utf-8")
@@ -117,15 +126,17 @@ class Wherehouse:
                         try:
                             record = json.loads(s)
                         except Exception as exc:
-                            logging.error(f"Failed to json load {s}: {exc}")
+                            self.logger.error(f"Failed to json load {s}: {exc}")
                         else:
                             records.append(record)
-            # TODO: Log the stats
             elif "Stats" in event:
                 statsDetails = event["Stats"]["Details"]
-                bytes_scanned = statsDetails["BytesScanned"]
-                bytes_processed = statsDetails["BytesProcessed"]
+                bytes_scanned += statsDetails["BytesScanned"] / 1024 ** 2
+                bytes_processed += statsDetails["BytesProcessed"] / 1024 ** 2
 
+        self.logger.info(
+            f"n_records={len(records):,},{bytes_scanned=:.1f},{bytes_processed=:.1f}"
+        )
         return records
 
     def query_s3_select(
@@ -162,7 +173,7 @@ class Wherehouse:
                 try:
                     data = future.result()
                 except Exception as exc:
-                    logging.ERROR(f"{filepath} threw {exc}")
+                    self.logger.error(f"{filepath} threw {exc}")
                 else:
                     results += data
                     if len(results) > n_max_results:
