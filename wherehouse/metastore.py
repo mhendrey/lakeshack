@@ -1,11 +1,48 @@
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 import logging
+import logging.config
 import pyarrow as pa
 from pyarrow import fs
 import pyarrow.parquet as pq
 import sqlite3
 from typing import Dict, List, Tuple, Union
+
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s %(name)s %(levelname)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "default",
+            "stream": "ext://sys.stdout",
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "default",
+            "filename": "metastore.log",
+            "maxBytes": 10485760,
+            "backupCount": 1,
+        },
+    },
+    "loggers": {
+        "metastore": {
+            "level": "DEBUG",
+            "handlers": ["console", "file"],
+            "propagate": False,
+        }
+    },
+}
+logging.config.dictConfig(LOGGING_CONFIG)
 
 
 class Metastore:
@@ -64,6 +101,7 @@ class Metastore:
         self.arrow_schema = arrow_schema
         self.cluster_column = cluster_column
         self.optional_columns = optional_columns
+        self.logger = logging.getLogger("metastore")
 
         self.conn = self._get_store_conn()
         self.placeholder = "?"  # Override this if using other backend database
@@ -80,11 +118,11 @@ class Metastore:
 
         # Create the table if it doesn't exist
         if not table_exists:
-            logging.info(f"Creating {store_table} in the metastore")
+            self.logger.info(f"Creating {store_table} in the metastore")
             self._create_table()
             self._create_indices()
         else:
-            logging.info(f"{store_table} already exists. Skipping table creation")
+            self.logger.info(f"{store_table} already exists. Skipping table creation")
             try:
                 cur = self.conn.cursor()
                 cur.execute(
@@ -96,8 +134,8 @@ class Metastore:
                         f"SELECT {col}_min, {col}_max from {store_table} limit 1"
                     )
             except Exception as exc:
-                logging.WARNING(
-                    f"Threw {exc} when checking column_name & "
+                self.logger.WARNING(
+                    f"Threw {exc} when checking cluster_column & "
                     + "optional_columns exist in metastore."
                 )
 
@@ -137,10 +175,11 @@ class Metastore:
         -------
         None
         """
+        start = datetime.now()
         metadata = self._gather_metadata(parquet_file_or_dir, file_system, n_workers)
 
         if not metadata:
-            logging.warning(f"No metadata found in {parquet_file_or_dir}")
+            self.logger.warning(f"No metadata found in {parquet_file_or_dir}")
             return None
         else:
             assert len(metadata[0]) == (
@@ -160,6 +199,11 @@ class Metastore:
         )
         cur.close()
         self.conn.commit()
+        end = datetime.now()
+        self.logger.info(
+            f"updating({parquet_file_or_dir}) added {len(metadata):,} "
+            + f"records in {end-start}"
+        )
 
     @staticmethod
     def _get_min_max(filepath: str, column_idxs: List[int], file_system: fs.FileSystem):
@@ -240,16 +284,16 @@ class Metastore:
                 try:
                     result = future.result()
                 except Exception as exc:
-                    print(f"ERROR: {filepath} threw error: {exc}")
+                    self.logger.error(f"_gather_metadata {filepath} threw: {exc}")
                 else:
                     data = result["data"]
                     if data:
                         metadata.append(data)
                     else:
                         if result["error_msg"].startswith("ERROR"):
-                            logging.error(result["error_msg"])
+                            self.logger.error(result["error_msg"])
                         else:
-                            logging.info(result["error_msg"])
+                            self.logger.info(result["error_msg"])
 
         return metadata
 
@@ -276,8 +320,9 @@ class Metastore:
             Keys are the filepaths to the parquet files. Values are a list of
             the cluster column values associated with that parquet file
         """
+        start = datetime.now()
         if other_column_values is not None:
-            logging.warn("other_column_values not implemented yet. Ignoring")
+            self.logger.warn("other_column_values not implemented yet. Ignoring")
 
         pq_files = defaultdict(list)
 
@@ -298,6 +343,8 @@ class Metastore:
             for (filepath,) in cur.fetchall():
                 pq_files[filepath].append(cluster_column_value)
         cur.close()
+        end = datetime.now()
+        self.logger.info(f"query returned {len(pq_files)} results in {end-start}")
 
         return pq_files
 
