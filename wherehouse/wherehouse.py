@@ -33,7 +33,7 @@ LOGGING_CONFIG = {
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
-            "formatter": "default",
+            "formatter": "json_formatter",
             "filename": "wherehouse.log",
             "maxBytes": 10485760,
             "backupCount": 1,
@@ -254,6 +254,19 @@ class Wherehouse:
 
         filepaths_to_cluster_values = self.metastore.query(cluster_column_values)
 
+        if columns is None:
+            columns = self.metastore.arrow_schema.names
+        query_fields = []
+        query_fields_safe = []
+        for column in columns:
+            pa_field = self.metastore.arrow_schema.field(column)
+            query_fields.append(pa_field)
+            if pa.types.is_timestamp(pa_field.type) or pa.types.is_date(pa_field.type):
+                pa_field = pa.field(column, pa.string())
+            query_fields_safe.append(pa_field)
+        query_schema_safe = pa.schema(query_fields_safe)
+        query_schema = pa.schema(query_fields)
+
         batches = []
         n_records = 0
         bytes_scanned = 0
@@ -281,8 +294,8 @@ class Wherehouse:
                 else:
                     if data["data"]:
                         n_records += len(data["data"])
-                        batches += pa.RecordBatch.from_pylist(
-                            data["data"], self.metastore.arrow_schema
+                        batches.append(
+                            pa.RecordBatch.from_pylist(data["data"], query_schema_safe)
                         )
                     bytes_scanned += data["BytesScanned"]
                     bytes_processed += data["BytesProcessed"]
@@ -298,13 +311,44 @@ class Wherehouse:
                         future.cancel()
                         check = True
 
+        table = pa.Table.from_batches(batches)
+
+        # Ideally we should be able to use pyarrow to cast back the timestamp and/or
+        # date fields from the strings returned by S3.  But pyarrow currently doesn't
+        # seem to have full support.
+
+        # For example: https://issues.apache.org/jira/browse/ARROW-12539
+        # shows that casting a date string to pa.date32() throws an error.
+        # $ pa.array(["2022-01-02"], pa.string()).cast(pa.date32())
+        #   ArrowNotImplementedError: Unsupported cast from string to date32...
+        # But
+        # $ pa.array(["2022-01-02"], pa.string()).cast(pa.timestamp("s"))
+        #   [2022-01-02 00:00:00]
+
+        # For timestamps
+        # $ pa.array(["2022-01-02T12:34:56.78"],pa.string()).cast(pa.timestamp("us"))
+        #   [2022-01-02 12:34:56.780000]
+        # But
+        # $ pa.array(["2022-01-02T12:34:56.78Z"],pa.string()).cast(pa.timestamp("us"))
+        #   ArrowInvalid: Failed to parse string....expected no zone offset
+
+        # Unfortunately, s3 select returns timestamps as 2022-01-02T12:34:56.78Z
+        # and that "Z" causes the ArrowInvalid error.
+        try:
+            table = table.cast(query_schema)
+        except Exception as exc:
+            self.logger.warning(
+                f"query_s3_select failed to cast back to original schema {exc}"
+                + ". Leaving timestamp and/or date fields as strings"
+            )
+
         end = datetime.now()
         self.logger.info(
             f"query_s3_select FINISHED {n_records=:,},elapsed_time={end-start},"
-            + f"{bytes_scanned=:,},{bytes_processed=:,},{bytes_returned=:,}"
+            + f"{bytes_scanned=:},{bytes_processed=:},{bytes_returned=:}"
         )
 
-        return pa.Table.from_batches(batches)
+        return table
 
     def query(
         self,
