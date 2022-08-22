@@ -195,7 +195,7 @@ class Metastore:
         metadata = self._gather_metadata(parquet_file_or_dir, file_system, n_workers)
 
         if not metadata:
-            self.logger.warning(f"No metadata found in {parquet_file_or_dir}")
+            self.logger.warning(f"update-No metadata found in {parquet_file_or_dir}")
             return None
         else:
             assert len(metadata[0]) == (
@@ -217,7 +217,7 @@ class Metastore:
         self.conn.commit()
         end = datetime.now()
         self.logger.info(
-            f"updating({parquet_file_or_dir}) added {len(metadata):,} "
+            f"update({parquet_file_or_dir}) added {len(metadata):,} "
             + f"records in {end-start}"
         )
 
@@ -300,7 +300,7 @@ class Metastore:
                 try:
                     result = future.result()
                 except Exception as exc:
-                    self.logger.error(f"_gather_metadata {filepath} threw: {exc}")
+                    self.logger.error(f"_gather_metadata({filepath}) threw: {exc}")
                 else:
                     data = result["data"]
                     if data:
@@ -338,7 +338,7 @@ class Metastore:
         """
         start = datetime.now()
         if other_column_values is not None:
-            self.logger.warn("other_column_values not implemented yet. Ignoring")
+            self.logger.warn("query-other_column_values not implemented yet. Ignoring")
 
         pq_files = defaultdict(list)
 

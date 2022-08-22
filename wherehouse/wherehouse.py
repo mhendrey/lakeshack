@@ -48,7 +48,7 @@ LOGGING_CONFIG = {
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
-            "formatter": "json_formatter",
+            "formatter": "default",
             "filename": "wherehouse.log",
             "maxBytes": 10485760,
             "backupCount": 1,
@@ -351,11 +351,10 @@ class Wherehouse:
         # and that "Z" causes the ArrowInvalid error.
         try:
             table = table.cast(query_schema)
-        except Exception as exc:
             self.logger.warning(
-                "query_s3_select-pyarrow failed to cast back to original schema:"
-                + f"{exc}. Trying pandas to parse date/timestamp strings"
+                "query_s3_select-pyarrow fixed their date/timestamp casting"
             )
+        except Exception:
             df = table.to_pandas()
             for column, pa_type in zip(query_schema.names, query_schema.types):
                 if pa.types.is_timestamp(pa_type) or pa.types.is_date(pa_type):
@@ -374,12 +373,12 @@ class Wherehouse:
 
         n_queries = len(cluster_column_values)
         n_files = len(filepaths_to_cluster_values)
-        elapsed_time = {end - start}
+        elapsed_time = end - start
         self.logger.info(
             "query_s3_select-FINISHED "
             + f"{n_queries=:},"
             + f"{n_files=:},"
-            + f"{n_records:=},"
+            + f"{n_records=:},"
             + f"{elapsed_time=:},"
             + f"{bytes_scanned=:},"
             + f"{bytes_processed=:},"
@@ -451,12 +450,12 @@ class Wherehouse:
 
         n_queries = len(cluster_column_values)
         n_files = len(filepaths_to_cluster_values)
-        elapsed_time = {end - start}
+        elapsed_time = end - start
         self.logger.info(
             "query-FINISHED "
             + f"{n_queries=:},"
             + f"{n_files=:},"
-            + f"{n_records:=},"
+            + f"{n_records=:},"
             + f"{elapsed_time=:}"
         )
 
