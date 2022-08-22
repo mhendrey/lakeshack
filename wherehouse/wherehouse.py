@@ -7,6 +7,7 @@ from datetime import datetime
 import json
 import logging
 import logging.config
+import pandas as pd
 import pyarrow as pa
 from pyarrow import fs
 import pyarrow.dataset as ds
@@ -338,14 +339,37 @@ class Wherehouse:
             table = table.cast(query_schema)
         except Exception as exc:
             self.logger.warning(
-                f"query_s3_select failed to cast back to original schema {exc}"
-                + ". Leaving timestamp and/or date fields as strings"
+                "query_s3_select-pyarrow failed to cast back to original schema:"
+                + f"{exc}. Trying pandas to parse date/timestamp strings"
             )
+            df = table.to_pandas()
+            for column, pa_type in zip(query_schema.names, query_schema.types):
+                if pa.types.is_timestamp(pa_type) or pa.types.is_date(pa_type):
+                    df[f"{column}"] = pd.to_datetime(df[f"{column}"])
+            try:
+                table = pa.Table.from_pandas(
+                    df, schema=query_schema, preserve_index=False
+                )
+            except Exception as exc:
+                self.logger.error(
+                    "query_s3_select-Failed to cast back to original schema:"
+                    + f"{exc}. Leaving date/timestamp as strings."
+                )
 
         end = datetime.now()
+
+        n_queries = len(cluster_column_values)
+        n_files = len(filepaths_to_cluster_values)
+        elapsed_time = {end - start}
         self.logger.info(
-            f"query_s3_select FINISHED {n_records=:,},elapsed_time={end-start},"
-            + f"{bytes_scanned=:},{bytes_processed=:},{bytes_returned=:}"
+            "query_s3_select-FINISHED "
+            + f"{n_queries=:},"
+            + f"{n_files=:},"
+            + f"{n_records:=},"
+            + f"{elapsed_time=:},"
+            + f"{bytes_scanned=:},"
+            + f"{bytes_processed=:},"
+            + f"{bytes_returned=:}"
         )
 
         return table
@@ -410,6 +434,16 @@ class Wherehouse:
                 break
 
         end = datetime.now()
-        self.logger.info(f"query FINISHED {n_records=:,},elapsed_time={end-start}")
+
+        n_queries = len(cluster_column_values)
+        n_files = len(filepaths_to_cluster_values)
+        elapsed_time = {end - start}
+        self.logger.info(
+            "query-FINISHED "
+            + f"{n_queries=:},"
+            + f"{n_files=:},"
+            + f"{n_records:=},"
+            + f"{elapsed_time=:}"
+        )
 
         return pa.Table.from_batches(batches)
