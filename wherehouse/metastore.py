@@ -313,22 +313,64 @@ class Metastore:
 
         return metadata
 
+    def _generate_secondary_where_clause(self, where_clause: List[Tuple]):
+        where_str = ""
+        for idx, (col, op, value) in enumerate(where_clause):
+            try:
+                schema_idx = self.arrow_schema.names.index(col)
+                pa_type = self.arrow_schema.types[schema_idx]
+            except ValueError:
+                self.logger.warning(f"{col} is not in the arrow_schema. Skipping")
+                continue
+
+            # Take care of formatting issues
+            if pa.types.is_string(pa_type):
+                value = f"'{value}'"
+            elif pa.types.is_date(pa_type):
+                value = f"date('{value}')"
+            elif pa.types.is_timestamp(pa_type):
+                value = f"datetime('{value}')"
+
+            where_str += " AND "
+            col_min = f"{col}_min"
+            col_max = f"{col}_max"
+            if op == ">=":
+                where_str += f"{value} <= {col_max}"
+            elif op == ">":
+                where_str += f"{value} < {col_max}"
+            elif op == "=" or op == "==":
+                where_str += f"{value} <= {col_max} AND {value} >= {col_min}"
+            elif op == "<":
+                where_str += f"{value} > {col_min}"
+            elif op == "<=":
+                where_str += f"{value} >= {col_min}"
+            else:
+                self.logger.error(
+                    f"_generate_secondary_where_clause-{op} is not "
+                    + "a valid comparision"
+                )
+                raise ValueError(f"{op} is not a valid comparision")
+
+        return where_str
+
     def query(
-        self, cluster_column_values: List, other_column_values: Dict = None,
+        self, cluster_column_values: List, optional_where_clauses: List[Tuple] = None,
     ) -> Dict[str, List[str]]:
         """
         Given the `cluster_column_values` return the filepaths of the parquet
         files whose min/max contains a cluster_column_value.
-
-        NOTE: other_column_values is not implemented yet and will be ignored
+        
+        If `optional_where_clauses` are provide, then further restrict the filepaths
+        to return so they match these conditions too.
 
         Parameters
         ----------
         cluster_column_values : List
             List of cluster column values of interest.
-        other_column_values : Dict
-            Future capability to also use any additional columns that have been
-            gathered into the wherehouse metastore.
+        optional_where_clauses : List[Tuple], optional
+            List of optional columns to further restrict the parquet files to be
+            queried. Each tuple is three values column_name,
+            comparision operator [>=, >, =, ==, <, <=], value
 
         Returns
         -------
@@ -337,10 +379,13 @@ class Metastore:
             the cluster column values associated with that parquet file
         """
         start = datetime.now()
-        if other_column_values is not None:
-            self.logger.warn("query-other_column_values not implemented yet. Ignoring")
-
         pq_files = defaultdict(list)
+
+        # Generate the secondary where clause
+        if optional_where_clauses is None:
+            where_str = ""
+        else:
+            where_str = self._generate_secondary_where_clause(optional_where_clauses)
 
         cur = self.conn.cursor()
         cluster_min = f"{self.cluster_column}_min"
@@ -352,6 +397,7 @@ class Metastore:
                 FROM {self.store_table}
                 WHERE {self.placeholder} >= {cluster_min}
                 AND   {self.placeholder} <= {cluster_max}
+                {where_str}
                 ;
                 """,
                 (cluster_column_value, cluster_column_value),

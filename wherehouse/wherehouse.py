@@ -24,8 +24,9 @@ import logging.config
 import pandas as pd
 import pyarrow as pa
 from pyarrow import fs
+import pyarrow.compute as pc
 import pyarrow.dataset as ds
-from typing import List
+from typing import List, Tuple
 
 from wherehouse.metastore import Metastore
 
@@ -105,6 +106,21 @@ class Wherehouse:
         self.file_system = file_system
         self.logger = logging.getLogger("wherehouse")
 
+    def _cast_to_pyarrow_schema(self, optional_where_clauses):
+        casted_where_clauses = []
+        for col_name, compare_op, value in optional_where_clauses:
+            try:
+                idx = self.metastore.arrow_schema.names.index(col_name)
+            except ValueError:
+                self.logger.warning(
+                    f"_cast_to_pyarrow_schema: {col_name} not in metastore.arrow_schema"
+                )
+            else:
+                pa_type = self.metastore.arrow_schema.types[idx]
+                value = pc.cast(value, pa_type)
+                casted_where_clauses.append((col_name, compare_op, value))
+        return casted_where_clauses
+
     def _construct_sql_statement(
         self, cluster_values: List, columns: List[str] = None, where_clause: str = None,
     ):
@@ -145,12 +161,12 @@ class Wherehouse:
                 where_statement += f"{self.metastore.cluster_column}='{cluster_value}'"
             else:
                 where_statement += (
-                    f" or {self.metastore.cluster_column}='{cluster_value}'"
+                    f" OR {self.metastore.cluster_column}='{cluster_value}'"
                 )
         where_statement += ")"
 
         if where_clause:
-            where_statement += f" and ({where_clause})"
+            where_statement += f" AND ({where_clause})"
 
         sql_statement = f"""
             SELECT {proj_col}
@@ -230,8 +246,8 @@ class Wherehouse:
     def query_s3_select(
         self,
         cluster_column_values,
+        optional_where_clauses: List[Tuple] = [],
         columns: List[str] = None,
-        where_clause: str = None,
         n_records_max: int = 2000000,
         n_workers: int = 20,
     ) -> pa.lib.Table:
@@ -243,11 +259,14 @@ class Wherehouse:
         cluster_column_values : str, List[str]
             Provide a single cluster column value or a list of them whose
             records you want to retrieve
+        optional_where_clauses : List[Tuple], optional
+            List of optional columns to further restrict the parquet files to be
+            queried. Each tuple is three values column_name,
+            comparision operator [>=, >, =, ==, <, <=], value. This will be logically
+            connected using "AND" between each in the list and with the
+            cluster_column_values
         columns : List[str]
             Specify the subset of columns to select. Default is None which is select *
-        where_clause : str
-            Any additional where clause that will be "AND" with cluster_values.
-            Default is None
         n_records_max : int, optional
             Once this many results have been exceed, stop retrieving results and return
             what has been retrieved so far. Thus, the Table.num_rows returned may be
@@ -267,7 +286,10 @@ class Wherehouse:
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
 
-        filepaths_to_cluster_values = self.metastore.query(cluster_column_values)
+        optional_where_clauses = self._cast_to_pyarrow_schema(optional_where_clauses)
+        filepaths_to_cluster_values = self.metastore.query(
+            cluster_column_values, optional_where_clauses
+        )
 
         if columns is None:
             columns = self.metastore.arrow_schema.names
@@ -281,6 +303,21 @@ class Wherehouse:
             query_fields_safe.append(pa_field)
         query_schema_safe = pa.schema(query_fields_safe)
         query_schema = pa.schema(query_fields)
+
+        where_clause = ""
+        for idx, (col_name, compare_op, value) in enumerate(optional_where_clauses):
+            # Take care of formatting issues
+            if (
+                pa.types.is_string(value.type)
+                or pa.types.is_date(value.type)
+                or pa.types.is_timestamp(value.type)
+            ):
+                value = f"'{value}'"
+
+            if idx == 0:
+                where_clause += f"{col_name}{compare_op}{value}"
+            else:
+                where_clause += f" AND {col_name}{compare_op}{value}"
 
         batches = []
         n_records = 0
@@ -326,7 +363,7 @@ class Wherehouse:
                         future.cancel()
                         check = True
 
-        table = pa.Table.from_batches(batches)
+        table = pa.Table.from_batches(batches, schema=query_schema_safe)
 
         # Ideally we should be able to use pyarrow to cast back the timestamp and/or
         # date fields from the strings returned by S3.  But pyarrow currently doesn't
@@ -390,6 +427,7 @@ class Wherehouse:
     def query(
         self,
         cluster_column_values,
+        optional_where_clauses: List[Tuple] = [],
         columns: List[str] = None,
         batch_size: int = 131072,
         n_records_max: int = 2000000,
@@ -404,6 +442,12 @@ class Wherehouse:
         ----------
         cluster_column_values : Union[str, List]
             cluster_column value you want to match on. Provide one or a list of many
+        optional_where_clauses : List[Tuple], optional
+            List of optional columns to further restrict the parquet files to be
+            queried. Each tuple is three values column_name,
+            comparision operator [>=, >, =, ==, <, <=], value. This will be logically
+            connected using "AND" between each in the list and with the
+            cluster_column_values
         columns : List[str], optional
             The columns to return from parquet files. Default is None (all of them)
         batch_size : int, optional
@@ -422,7 +466,19 @@ class Wherehouse:
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
 
-        filepaths_to_cluster_values = self.metastore.query(cluster_column_values)
+        batch_fields = []
+        if columns is not None:
+            for col_name in columns:
+                batch_fields.append(self.metastore.arrow_schema.field(col_name))
+            batch_schema = pa.schema(batch_fields)
+        else:
+            batch_schema = self.metastore.arrow_schema
+
+        # Cast the values in the optional_where_clause to pyarrow types
+        optional_where_clauses = self._cast_to_pyarrow_schema(optional_where_clauses)
+        filepaths_to_cluster_values = self.metastore.query(
+            cluster_column_values, optional_where_clauses
+        )
         filepaths = list(filepaths_to_cluster_values.keys())
 
         # Construct the cluster_column values filter. "or" the results
@@ -432,19 +488,36 @@ class Wherehouse:
                 ds.field(self.metastore.cluster_column) == cluster_value
             )
 
-        dataset = ds.dataset(filepaths, format="parquet", filesystem=self.file_system)
-        record_batches = dataset.to_batches(
-            columns=columns, filter=ds_filter, batch_size=batch_size,
-        )
+        # Add in the optional_where_clauses
+        for col_name, compare_op, value in optional_where_clauses:
+            if compare_op == "==" or compare_op == "=":
+                op_filter = ds.field(col_name) == value
+            elif compare_op == "<":
+                op_filter = ds.field(col_name) < value
+            elif compare_op == "<=":
+                op_filter = ds.field(col_name) <= value
+            elif compare_op == ">":
+                op_filter = ds.field(col_name) > value
+            elif compare_op == ">=":
+                op_filter = ds.field(col_name) >= value
+            ds_filter = ds_filter & (op_filter)
 
         n_records = 0
         batches = []
-        for record_batch in record_batches:
-            if record_batch.num_rows > 0:
-                n_records += record_batch.num_rows
-                batches.append(record_batch)
-            if n_records > n_records_max:
-                break
+        if filepaths:
+            dataset = ds.dataset(
+                filepaths, format="parquet", filesystem=self.file_system
+            )
+            record_batches = dataset.to_batches(
+                columns=columns, filter=ds_filter, batch_size=batch_size,
+            )
+
+            for record_batch in record_batches:
+                if record_batch.num_rows > 0:
+                    n_records += record_batch.num_rows
+                    batches.append(record_batch)
+                if n_records > n_records_max:
+                    break
 
         end = datetime.now()
 
@@ -459,4 +532,4 @@ class Wherehouse:
             + f"{elapsed_time=:}"
         )
 
-        return pa.Table.from_batches(batches)
+        return pa.Table.from_batches(batches, schema=batch_schema)
