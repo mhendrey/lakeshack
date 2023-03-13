@@ -32,7 +32,7 @@ def yield_tables(
 
     pa_fields = [
         ("id", pa.string()),
-        ("timestamp", pa.timestamp("us", tz="UTC")),
+        ("timestamp", pa.timestamp("us")),
         ("x", pa.int32()),
     ]
     if use_date:
@@ -47,10 +47,14 @@ def yield_tables(
     for i in range(n_files):
         epoch_min = starting_epoch + i * delta
         epoch_max = epoch_min + int(delta // 2)
-        timestamps = [
-            datetime.fromtimestamp(e)
-            for e in rng.integers(epoch_min, epoch_max, n_records_per_file)
-        ]
+        timestamps = [datetime.fromtimestamp(epoch_min)]
+        for e in rng.integers(
+            epoch_min + (60 * 60 * 24),
+            epoch_max - (60 * 60 * 24),
+            n_records_per_file - 2,
+        ):
+            timestamps.append(datetime.fromtimestamp(e))
+        timestamps.append(datetime.fromtimestamp(epoch_max))
         if use_date:
             timestamps = [ts.date() for ts in timestamps]
 

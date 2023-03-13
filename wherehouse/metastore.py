@@ -22,58 +22,37 @@ import logging.config
 import pyarrow as pa
 from pyarrow import fs
 import pyarrow.parquet as pq
-import sqlite3
-from typing import Dict, List, Tuple, Union
-
-LOGGING_CONFIG = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "format": "%(asctime)s %(name)s %(levelname)s: %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        }
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "level": "INFO",
-            "formatter": "default",
-            "stream": "ext://sys.stdout",
-        },
-        "file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
-            "formatter": "default",
-            "filename": "metastore.log",
-            "maxBytes": 10485760,
-            "backupCount": 1,
-        },
-    },
-    "loggers": {
-        "metastore": {
-            "level": "DEBUG",
-            "handlers": ["console", "file"],
-            "propagate": False,
-        }
-    },
-}
-logging.config.dictConfig(LOGGING_CONFIG)
+from sqlalchemy import (
+    create_engine,
+    MetaData,
+    Table,
+    insert,
+    select,
+    Column,
+    String,
+    BigInteger,
+    Float,
+    DateTime,
+    Date,
+    and_,
+)
+from sqlalchemy.exc import IntegrityError
+from typing import Dict, List, Tuple, Union, Any
 
 
 class Metastore:
     """
-    Base class for storing some of the parquet metadata for a set of parquet files.
-    The base class uses SQLite for storing the relevant information.
+    Store metadata from parquet files into a database using SQLAlchmey
     """
 
     def __init__(
         self,
-        store_args: Dict,
+        store_url: str,
         store_table: str,
         arrow_schema: pa.lib.Schema,
-        cluster_column: str,
+        cluster_column: str = None,
         *optional_columns: str,
+        **store_kwargs,
     ) -> None:
         """
         Initialize a connection to the metastore.
@@ -81,13 +60,18 @@ class Metastore:
         Example:
 
         ```
-        import pyarrow.parquet as pq
+        from pyarrow import fs
+        import pyarrow.dataset as ds
 
-        pq_file = pq.ParquetFile("some.parquet")
+        dataset = ds.dataset(
+            "/path/to/parquet/dir/",
+            fileformat="parquet",
+            filesystem=fs.LocalFileSystem(),
+        )
         metastore = Metastore(
-            {"database": "some.db"},
+            "sqlite:///:memory:",
             "some_table",
-            pq_file.schema_arrow,
+            ds.schema,
             "id",
         )
         ```
@@ -99,61 +83,130 @@ class Metastore:
 
         Parameters
         ----------
-        store_args : Dict
-            Arguments needed to connect to the backend storage
+        store_url : str
+            URL string to backend database. See sqlalchemy.create_engine() for more
+            details and examples.
         store_table : str
             Name of the table storing the parquet metadata
         arrow_schema : pa.lib.Schema
             Arrow schema of the parquet files
-        cluster_column : str
-            Name of the column in the Arrow schema used for clustering the data
+        cluster_column : str, optional
+            Name of the column in the Arrow schema used for clustering the data. If
+            `None` (default), then expecting the table to already exist.
         *optional_columns : str
-            Additional columns in the Arrow schema whose metadata in the metastore.
-            NOTE: Not currently implemented, but serving as a placeholder for future
-            code.
+            Additional columns in the Arrow schema whose metadata is to be stored in
+            the metastore. These should have some clustering in order to be useful,
+            even if less clustering than in the `cluster_column`
+        **store_kwargs : Any, optional
+            Arguments to be passed to sqlalchemy.create_engine()
         """
-        self.store_args = store_args
+        self.store_url = store_url
         self.store_table = store_table
         self.arrow_schema = arrow_schema
         self.cluster_column = cluster_column
         self.optional_columns = optional_columns
-        self.logger = logging.getLogger("metastore")
 
-        self.conn = self._get_store_conn()
-        self.placeholder = "?"  # Override this if using other backend database
+        self.logger = logging.getLogger(__name__)
 
+        self.engine = create_engine(store_url, **store_kwargs)
+        self.metadata_obj = MetaData()
         # See if the table already exists
         try:
-            cur = self.conn.cursor()
-            cur.execute(f"SELECT * from {self.store_table} limit 1")
-        except sqlite3.OperationalError:
+            self.metadata_obj.reflect(self.engine, only=[self.store_table])
+        except:
             table_exists = False
         else:
             table_exists = True
-            cur.close()
 
         # Create the table if it doesn't exist
         if not table_exists:
             self.logger.info(f"Creating {store_table} in the metastore")
             self._create_table()
-            self._create_indices()
         else:
             self.logger.info(f"{store_table} already exists. Skipping table creation")
-            try:
-                cur = self.conn.cursor()
-                cur.execute(
-                    f"SELECT {cluster_column}_min, {cluster_column}_max "
-                    + f"from {store_table} limit 1"
-                )
-                for col in optional_columns:
-                    cur.execute(
-                        f"SELECT {col}_min, {col}_max from {store_table} limit 1"
+            self.table = self.metadata_obj.tables[self.store_table]
+            # Get the cluster_column from the table if not given in init()
+            if cluster_column is None:
+                col_name_parts = self.table.columns[1].name.split("_min")[:-1]
+                self.cluster_column = "".join(col_name_parts)
+            # Get optional columns from the table if not given in init()
+            if len(optional_columns) == 0:
+                self.optional_columns = []
+                for i in range(3, len(self.table.columns), 2):
+                    col_name_parts = self.table.columns[i].name.split("_min")[:-1]
+                    self.optional_columns.append("".join(col_name_parts))
+
+            # Some quality checking to make sure that the table has the same format
+            if len(self.table.columns) != (3 + 2 * len(self.optional_columns)):
+                raise ValueError(f"Existing table columns don't match those given")
+            for i, col in enumerate(self.table.columns):
+                if i == 0:
+                    if col.name != "filepath":
+                        raise ValueError(f"{col.name} != 'filepath'")
+                    if not isinstance(col.type, String):
+                        raise TypeError(
+                            f"{col.name}, {col.type} is not an instance of {String}"
+                        )
+                elif i == 1:
+                    col_name = f"{self.cluster_column}_min"
+                    if col.name != col_name:
+                        raise ValueError(
+                            f"cluster_column mismatch: {col.name} != {col_name}"
+                        )
+                    schema_name = "".join(col_name.split("_min")[:-1])
+                    schema_type = Metastore._map_pa_type(
+                        self.arrow_schema.field(schema_name).type
                     )
-            except Exception as exc:
-                self.logger.WARNING(
-                    f"Threw {exc} when checking cluster_column & "
-                    + "optional_columns exist in metastore."
-                )
+                    if not isinstance(col.type, schema_type):
+                        raise TypeError(
+                            f"cluster_column type mismatch: "
+                            + f"{col.type} is not an instance of {schema_type}"
+                        )
+                elif i == 2:
+                    col_name = f"{self.cluster_column}_max"
+                    if col.name != col_name:
+                        raise ValueError(
+                            f"cluster_column mismatch: {col.name} != {col_name}"
+                        )
+                    schema_name = "".join(col_name.split("_max")[:-1])
+                    schema_type = Metastore._map_pa_type(
+                        self.arrow_schema.field(schema_name).type
+                    )
+                    if not isinstance(col.type, schema_type):
+                        raise TypeError(
+                            f"cluster_column type mismtach: "
+                            + f"{col.type} is not an instance of {schema_type}"
+                        )
+                elif i % 2 == 1:
+                    col_name = f"{self.optional_columns[i-3]}_min"
+                    if col.name != col_name:
+                        raise ValueError(
+                            f"optional_column mismatch {col.name} != {col_name}"
+                        )
+                    schema_name = "".join(col_name.split("_min")[:-1])
+                    schema_type = Metastore._map_pa_type(
+                        self.arrow_schema.field(schema_name).type
+                    )
+                    if not isinstance(col.type, schema_type):
+                        raise TypeError(
+                            f"optional_column type mismatch: {col_name}, "
+                            + f"{col.type} is not an instance of {schema_type}"
+                        )
+                elif i % 2 == 0:
+                    col_name = f"{self.optional_columns[i-4]}_max"
+                    if col.name != col_name:
+                        raise ValueError(
+                            f"optional_column mismatch {col.name} != {col_name}"
+                        )
+                    schema_name = "".join(col_name.split("_max")[:-1])
+                    schema_type = Metastore._map_pa_type(
+                        self.arrow_schema.field(schema_name).type
+                    )
+                    if not isinstance(col.type, schema_type):
+                        raise TypeError(
+                            f"optional_column type mismatch: {col_name}, "
+                            + f"{col.type} is not an instance of {schema_type}"
+                        )
 
     def update(
         self,
@@ -171,8 +224,8 @@ class Metastore:
         from pyarrow import fs
 
         s3 = fs.S3FileSystem(region="us-east-1")
-        parquet_dir = "path/on/local/to/parquets/"
-        metastore.update(parquet_dir, s3)
+        parquet_dir = "s3/path/to/parquets/"
+        metastore.update(parquet_dir, file_system=s3)
         ```
 
         Parameters
@@ -186,7 +239,7 @@ class Metastore:
         n_workers : int, optional
             Size of the thread pool used to concurrently retrieve parquet file
             metadata. Default is 16
-        
+
         Returns
         -------
         None
@@ -202,19 +255,17 @@ class Metastore:
                 3 + 2 * len(self.optional_columns)
             ), "gathered metadata length does not match number of database columns"
 
-        cur = self.conn.cursor()
+        with self.engine.connect() as conn:
+            try:
+                conn.execute(
+                    insert(self.table),
+                    metadata,
+                )
+                conn.commit()
+            except IntegrityError as exc:
+                self.logger.error(f"update() threw {exc}")
+                metadata = []
 
-        # Take care of the filepaths & cluster columns
-        placeholders = f"{self.placeholder},{self.placeholder},{self.placeholder}"
-        # Add in the other_columns
-        for _ in self.optional_columns:
-            placeholders += f",{self.placeholder},{self.placeholder}"
-
-        cur.executemany(
-            f"INSERT INTO {self.store_table} VALUES({placeholders})", metadata
-        )
-        cur.close()
-        self.conn.commit()
         end = datetime.now()
         self.logger.info(
             f"update({parquet_file_or_dir}) added {len(metadata):,} "
@@ -222,14 +273,35 @@ class Metastore:
         )
 
     @staticmethod
-    def _get_min_max(filepath: str, column_idxs: List[int], file_system: fs.FileSystem):
+    def _get_min_max(
+        filepath: str, column_idxs: List[int], file_system: fs.FileSystem
+    ) -> Dict:
+        """
+        Worker function used by a thread pool to retrieve min/max values from a given
+        parquet file
+
+        Parameters
+        ----------
+        filepath : str
+            Filepath to a parquet file
+        column_idxs : List[int]
+            Column ids from the arrow schema from which to gather min/max values
+        file_system : fs.FileSystem
+            File system storing `filepath`
+
+        Returns
+        -------
+        Dict
+            {"error_msg": msg, "data": Dict[str, Any]}
+        """
         try:
             metadata = pq.ParquetFile(file_system.open_input_file(filepath)).metadata
         except pa.ArrowException as exc:
-            return {"error_msg": f"ERROR for {filepath}: {exc}", "data": ()}
+            return {"error_msg": f"ERROR for {filepath}: {exc}", "data": {}}
 
-        data = [filepath]
+        data = {"filepath": filepath}
         for idx in column_idxs:
+            col_name = metadata.schema[idx].name
             col_min = metadata.row_group(0).column(idx).statistics.min
             col_max = metadata.row_group(0).column(idx).statistics.max
             for r in range(metadata.num_row_groups):
@@ -239,10 +311,10 @@ class Metastore:
                     col_min = rg_min
                 if rg_max > col_max:
                     col_max = rg_max
-            data.append(col_min)
-            data.append(col_max)
+            data[f"{col_name}_min"] = col_min
+            data[f"{col_name}_max"] = col_max
 
-        return {"error_msg": f"SUCCESS for {filepath}", "data": tuple(data)}
+        return {"error_msg": f"SUCCESS for {filepath}", "data": data}
 
     def _gather_metadata(
         self,
@@ -253,7 +325,7 @@ class Metastore:
         """
         Gather the metadata pertaining to the cluster column and any optional columns
         from either a single parquet file or a directory. If a directory, recursively
-        walk the directory for files. This uses a ThreadPool to spin speed things up.
+        walk the directory for files. This uses a ThreadPool to speed things up.
 
         Parameters
         ----------
@@ -263,7 +335,7 @@ class Metastore:
             pyarrow file system where parquet file(s) are stored
         n_workers : int
             Size of the threadpool to speed things up
-        
+
         Returns
         -------
         List[Tuple]
@@ -313,53 +385,15 @@ class Metastore:
 
         return metadata
 
-    def _generate_secondary_where_clause(self, where_clause: List[Tuple]):
-        where_str = ""
-        for idx, (col, op, value) in enumerate(where_clause):
-            try:
-                schema_idx = self.arrow_schema.names.index(col)
-                pa_type = self.arrow_schema.types[schema_idx]
-            except ValueError:
-                self.logger.warning(f"{col} is not in the arrow_schema. Skipping")
-                continue
-
-            # Take care of formatting issues
-            if pa.types.is_string(pa_type):
-                value = f"'{value}'"
-            elif pa.types.is_date(pa_type):
-                value = f"date('{value}')"
-            elif pa.types.is_timestamp(pa_type):
-                value = f"datetime('{value}')"
-
-            where_str += " AND "
-            col_min = f"{col}_min"
-            col_max = f"{col}_max"
-            if op == ">=":
-                where_str += f"{value} <= {col_max}"
-            elif op == ">":
-                where_str += f"{value} < {col_max}"
-            elif op == "=" or op == "==":
-                where_str += f"{value} <= {col_max} AND {value} >= {col_min}"
-            elif op == "<":
-                where_str += f"{value} > {col_min}"
-            elif op == "<=":
-                where_str += f"{value} >= {col_min}"
-            else:
-                self.logger.error(
-                    f"_generate_secondary_where_clause-{op} is not "
-                    + "a valid comparision"
-                )
-                raise ValueError(f"{op} is not a valid comparision")
-
-        return where_str
-
     def query(
-        self, cluster_column_values: List, optional_where_clauses: List[Tuple] = None,
-    ) -> Dict[str, List[str]]:
+        self,
+        cluster_column_values: List,
+        optional_where_clauses: List[Tuple] = [],
+    ) -> Dict[str, List[Any]]:
         """
         Given the `cluster_column_values` return the filepaths of the parquet
         files whose min/max contains a cluster_column_value.
-        
+
         If `optional_where_clauses` are provide, then further restrict the filepaths
         to return so they match these conditions too.
 
@@ -374,56 +408,54 @@ class Metastore:
 
         Returns
         -------
-        Dict[str, List[str]]
+        Dict[str, List[Any]]
             Keys are the filepaths to the parquet files. Values are a list of
             the cluster column values associated with that parquet file
         """
         start = datetime.now()
         pq_files = defaultdict(list)
 
-        # Generate the secondary where clause
-        if optional_where_clauses is None:
-            where_str = ""
-        else:
-            where_str = self._generate_secondary_where_clause(optional_where_clauses)
-
-        cur = self.conn.cursor()
-        cluster_min = f"{self.cluster_column}_min"
-        cluster_max = f"{self.cluster_column}_max"
+        col_cluster_min = self.table.columns[f"{self.cluster_column}_min"]
+        col_cluster_max = self.table.columns[f"{self.cluster_column}_max"]
         for cluster_column_value in cluster_column_values:
-            cur.execute(
-                f"""
-                SELECT filepath
-                FROM {self.store_table}
-                WHERE {self.placeholder} >= {cluster_min}
-                AND   {self.placeholder} <= {cluster_max}
-                {where_str}
-                ;
-                """,
-                (cluster_column_value, cluster_column_value),
+            stmt = select(self.table.c.filepath).where(
+                and_(
+                    col_cluster_min <= cluster_column_value,
+                    cluster_column_value <= col_cluster_max,
+                )
             )
-            for (filepath,) in cur.fetchall():
-                pq_files[filepath].append(cluster_column_value)
-        cur.close()
+            for (col, op, value) in optional_where_clauses:
+                col_min = self.table.columns[f"{col}_min"]
+                col_max = self.table.columns[f"{col}_max"]
+                if op == ">=":
+                    stmt = stmt.where(value <= col_max)
+                elif op == ">":
+                    stmt = stmt.where(value < col_max)
+                elif op == "=" or op == "==":
+                    stmt = stmt.where(and_(col_min <= value, value <= col_max))
+                elif op == "<":
+                    stmt = stmt.where(value > col_min)
+                elif op == "<=":
+                    stmt = stmt.where(value >= col_min)
+                else:
+                    self.logger.error(
+                        f"optional_where_clause {op} is not a valid comparision"
+                    )
+                    raise ValueError(f"{op} is not a valid comparision")
+
+            with self.engine.connect() as conn:
+                for (filepath,) in conn.execute(stmt):
+                    pq_files[filepath].append(cluster_column_value)
+
         end = datetime.now()
         self.logger.info(f"query returned {len(pq_files)} results in {end-start}")
 
         return pq_files
 
-    def _get_store_conn(self):
-        """
-        Uses the store_args given to establish a connection to the metastore's backend
-        storage.
-
-        Override this for other backend storage
-        """
-        return sqlite3.connect(**self.store_args)
-
     @staticmethod
     def _map_pa_type(pa_type: pa.DataType):
         """
-        Map arrow DataTypes to SQLite 'storage classes'.
-        Note: Subclasses need to override this method
+        Map arrow DataTypes to SQLAlchemy data types
 
         Parameters
         ----------
@@ -431,19 +463,18 @@ class Metastore:
 
         Returns
         -------
-        str
-            Corresponding storage class for the database
+        Corresponding storage class for the database
         """
         if pa.types.is_string(pa_type) or pa.types.is_large_string(pa_type):
-            return "TEXT"
+            return String
         elif pa.types.is_integer(pa_type):
-            return "INTEGER"
+            return BigInteger
         elif pa.types.is_floating(pa_type):
-            return "REAL"
+            return Float
         elif pa.types.is_date(pa_type):
-            return "TEXT"
+            return Date
         elif pa.types.is_timestamp(pa_type):
-            return "TEXT"
+            return DateTime
 
     def _create_table(self) -> None:
         """
@@ -454,50 +485,41 @@ class Metastore:
         -------
         None
         """
-        sql_str = f"""
-            CREATE TABLE {self.store_table} (
-                filepath TEXT PRIMARY KEY,
-        """
-        # Add the cluster column
+        # Specify the 'filepath' column as a string and the primary key for the table
+        columns = [Column("filepath", String, primary_key=True)]
+
+        # Specify the cluster columns and corresponding type
         db_type = Metastore._map_pa_type(
             self.arrow_schema.field(self.cluster_column).type
         )
-        sql_str += f"{self.cluster_column}_min {db_type},"
-        sql_str += f"{self.cluster_column}_max {db_type},"
+        columns.append(
+            Column(f"{self.cluster_column}_min", db_type, nullable=False, index=True)
+        )
+        columns.append(
+            Column(f"{self.cluster_column}_max", db_type, nullable=False, index=True)
+        )
 
         # Add optional columns to be stored in the database
         for col in self.optional_columns:
-            db_type = Metastore._map_pa_type(self.arrow_schema.field(col).type)
+            arrow_type = self.arrow_schema.field(col).type
+            db_type = Metastore._map_pa_type(arrow_type)
             # Might not have defined the mapping between arrow & database
             if db_type is not None:
-                sql_str += f"{col}_min {db_type},"
-                sql_str += f"{col}_max {db_type},"
-        # Remove the last "," & close parenthesis adding ";" for good measure
-        sql_str = sql_str[:-1] + ");"
-
-        cur = self.conn.cursor()
-        cur.execute(sql_str)
-        cur.close()
-        self.conn.commit()
-
-    def _create_indices(self) -> None:
-        """
-        Internal method to create indices for the various columns in the backend
-        storage. Making a separate index for every column besides 'filepath'
-        """
-        cur = self.conn.cursor()
-        for col in [self.cluster_column] + list(self.optional_columns):
-            for ext in ["min", "max"]:
-                index_name = f"{self.store_table}_{col}_{ext}_index"
-                cur.execute(
-                    f"CREATE INDEX {index_name} ON {self.store_table}"
-                    + f"({col}_{ext});"
+                columns.append(
+                    Column(f"{col}_min", db_type, nullable=False, index=True)
                 )
-        cur.close()
-        self.conn.commit()
+                columns.append(
+                    Column(f"{col}_max", db_type, nullable=False, index=True)
+                )
+            else:
+                self.logger.warning(
+                    f"{col} with {arrow_type=:} failed to map to database type. "
+                    + f"Not adding {col}_min or {col}_max to database table"
+                )
 
-    def __del__(self):
-        try:
-            self.conn.close()
-        except Exception:
-            pass
+        self.table = Table(
+            self.store_table,
+            self.metadata_obj,
+            *columns,
+        )
+        self.table.create(self.engine, checkfirst=True)

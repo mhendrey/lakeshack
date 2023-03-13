@@ -122,7 +122,10 @@ class Wherehouse:
         return casted_where_clauses
 
     def _construct_sql_statement(
-        self, cluster_values: List, columns: List[str] = None, where_clause: str = None,
+        self,
+        cluster_values: List,
+        columns: List[str] = None,
+        where_clause: str = None,
     ):
         """
         Create a sql statement that can be given to s3's select_object_content().
@@ -139,7 +142,7 @@ class Wherehouse:
         where_clause : str
             Any additional where clause that will be "AND" with cluster_values.
             Default is None
-        
+
         Returns
         -------
         sql_statement : str
@@ -274,7 +277,7 @@ class Wherehouse:
         n_workers : int, optional
             Number of workers in the ThreadPool to launch parallel calls to S3 Select.
             Default is 20.
-        
+
         Returns
         -------
         pa.lib.Table
@@ -383,6 +386,9 @@ class Wherehouse:
         # But
         # $ pa.array(["2022-01-02T12:34:56.78Z"],pa.string()).cast(pa.timestamp("us"))
         #   ArrowInvalid: Failed to parse string....expected no zone offset
+        # Yet
+        # $ pa.array(["2022-01-02T12:34:56.78Z"], pa.string()).cast(pa.timestamp("us", "Z"))
+        #   [2022-01-02 12:34:56.780000]
 
         # Unfortunately, s3 select returns timestamps as 2022-01-02T12:34:56.78Z
         # and that "Z" causes the ArrowInvalid error.
@@ -509,7 +515,9 @@ class Wherehouse:
                 filepaths, format="parquet", filesystem=self.file_system
             )
             record_batches = dataset.to_batches(
-                columns=columns, filter=ds_filter, batch_size=batch_size,
+                columns=columns,
+                filter=ds_filter,
+                batch_size=batch_size,
             )
 
             for record_batch in record_batches:
