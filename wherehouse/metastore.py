@@ -22,21 +22,7 @@ import logging.config
 import pyarrow as pa
 from pyarrow import fs
 import pyarrow.parquet as pq
-from sqlalchemy import (
-    create_engine,
-    MetaData,
-    Table,
-    insert,
-    select,
-    Column,
-    String,
-    BigInteger,
-    Float,
-    DateTime,
-    Date,
-    and_,
-)
-from sqlalchemy.exc import IntegrityError
+import sqlalchemy as sa
 from typing import Dict, List, Tuple, Union, Any
 
 
@@ -108,8 +94,8 @@ class Metastore:
 
         self.logger = logging.getLogger(__name__)
 
-        self.engine = create_engine(store_url, **store_kwargs)
-        self.metadata_obj = MetaData()
+        self.engine = sa.create_engine(store_url, **store_kwargs)
+        self.metadata_obj = sa.MetaData()
         # See if the table already exists
         try:
             self.metadata_obj.reflect(self.engine, only=[self.store_table])
@@ -143,9 +129,9 @@ class Metastore:
                 if i == 0:
                     if col.name != "filepath":
                         raise ValueError(f"{col.name} != 'filepath'")
-                    if not isinstance(col.type, String):
+                    if not isinstance(col.type, sa.String):
                         raise TypeError(
-                            f"{col.name}, {col.type} is not an instance of {String}"
+                            f"{col.name}, {col.type} is not an instance of {sa.String}"
                         )
                 elif i == 1:
                     col_name = f"{self.cluster_column}_min"
@@ -258,11 +244,11 @@ class Metastore:
         with self.engine.connect() as conn:
             try:
                 conn.execute(
-                    insert(self.table),
+                    sa.insert(self.table),
                     metadata,
                 )
                 conn.commit()
-            except IntegrityError as exc:
+            except sa.exc.IntegrityError as exc:
                 self.logger.error(f"update() threw {exc}")
                 metadata = []
 
@@ -418,8 +404,8 @@ class Metastore:
         col_cluster_min = self.table.columns[f"{self.cluster_column}_min"]
         col_cluster_max = self.table.columns[f"{self.cluster_column}_max"]
         for cluster_column_value in cluster_column_values:
-            stmt = select(self.table.c.filepath).where(
-                and_(
+            stmt = sa.select(self.table.c.filepath).where(
+                sa.and_(
                     col_cluster_min <= cluster_column_value,
                     cluster_column_value <= col_cluster_max,
                 )
@@ -432,7 +418,7 @@ class Metastore:
                 elif op == ">":
                     stmt = stmt.where(value < col_max)
                 elif op == "=" or op == "==":
-                    stmt = stmt.where(and_(col_min <= value, value <= col_max))
+                    stmt = stmt.where(sa.and_(col_min <= value, value <= col_max))
                 elif op == "<":
                     stmt = stmt.where(value > col_min)
                 elif op == "<=":
@@ -466,15 +452,15 @@ class Metastore:
         Corresponding storage class for the database
         """
         if pa.types.is_string(pa_type) or pa.types.is_large_string(pa_type):
-            return String
+            return sa.String
         elif pa.types.is_integer(pa_type):
-            return BigInteger
+            return sa.BigInteger
         elif pa.types.is_floating(pa_type):
-            return Float
+            return sa.Float
         elif pa.types.is_date(pa_type):
-            return Date
+            return sa.Date
         elif pa.types.is_timestamp(pa_type):
-            return DateTime
+            return sa.DateTime
 
     def _create_table(self) -> None:
         """
@@ -486,17 +472,17 @@ class Metastore:
         None
         """
         # Specify the 'filepath' column as a string and the primary key for the table
-        columns = [Column("filepath", String, primary_key=True)]
+        columns = [sa.Column("filepath", sa.String, primary_key=True)]
 
         # Specify the cluster columns and corresponding type
         db_type = Metastore._map_pa_type(
             self.arrow_schema.field(self.cluster_column).type
         )
         columns.append(
-            Column(f"{self.cluster_column}_min", db_type, nullable=False, index=True)
+            sa.Column(f"{self.cluster_column}_min", db_type, nullable=False, index=True)
         )
         columns.append(
-            Column(f"{self.cluster_column}_max", db_type, nullable=False, index=True)
+            sa.Column(f"{self.cluster_column}_max", db_type, nullable=False, index=True)
         )
 
         # Add optional columns to be stored in the database
@@ -506,10 +492,10 @@ class Metastore:
             # Might not have defined the mapping between arrow & database
             if db_type is not None:
                 columns.append(
-                    Column(f"{col}_min", db_type, nullable=False, index=True)
+                    sa.Column(f"{col}_min", db_type, nullable=False, index=True)
                 )
                 columns.append(
-                    Column(f"{col}_max", db_type, nullable=False, index=True)
+                    sa.Column(f"{col}_max", db_type, nullable=False, index=True)
                 )
             else:
                 self.logger.warning(
@@ -517,7 +503,7 @@ class Metastore:
                     + f"Not adding {col}_min or {col}_max to database table"
                 )
 
-        self.table = Table(
+        self.table = sa.Table(
             self.store_table,
             self.metadata_obj,
             *columns,
