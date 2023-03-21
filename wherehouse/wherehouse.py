@@ -26,44 +26,10 @@ import pyarrow as pa
 from pyarrow import fs
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
-from typing import List, Tuple
+import sqlalchemy as sa
+from typing import Any, List, Tuple
 
 from wherehouse.metastore import Metastore
-
-LOGGING_CONFIG = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "default": {
-            "format": "%(asctime)s %(name)s %(levelname)s: %(message)s",
-            "datefmt": "%Y-%m-%d %H:%M:%S",
-        }
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "level": "INFO",
-            "formatter": "default",
-            "stream": "ext://sys.stdout",
-        },
-        "file": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
-            "formatter": "default",
-            "filename": "wherehouse.log",
-            "maxBytes": 10485760,
-            "backupCount": 1,
-        },
-    },
-    "loggers": {
-        "wherehouse": {
-            "level": "DEBUG",
-            "handlers": ["console", "file"],
-            "propagate": False,
-        }
-    },
-}
-logging.config.dictConfig(LOGGING_CONFIG)
 
 
 class Wherehouse:
@@ -80,19 +46,24 @@ class Wherehouse:
         Example:
 
         ```
-        import pyarrow.parquet as pq
+        import pyarrow.dataset as ds
         from pyarrow import fs
 
         from wherehouse.metastore import Metastore
 
-        pq_file = pq.ParquetFile("some.parquet")
+        s3 = fs.S3FileSystem(region="us-iso-east-1")
+        dataset = ds.dataset(
+            "path/to/parquets/",
+            format="parquet",
+            file_system=s3,
+        )
         metastore = Metastore(
-            {"database": "some.db"},
+            "sqlite:///some.db",
             "some_table",
-            pq_file.schema_arrow,
+            dataset.schema,
             "id",
         )
-        wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
+        wherehouse = Wherehouse(metastore, s3)
         ```
 
         Parameters
@@ -104,7 +75,14 @@ class Wherehouse:
         """
         self.metastore = metastore
         self.file_system = file_system
-        self.logger = logging.getLogger("wherehouse")
+        self.logger = logging.getLogger(__name__)
+
+        columns = []
+        for col_arrow in self.metastore.arrow_schema:
+            col_name = col_arrow.name
+            db_type = Metastore._map_pa_type(col_arrow.type)
+            columns.append(sa.Column(col_name, db_type, quote=True))
+        self.s3_table = sa.Table("s3object", sa.MetaData(), *columns).alias("s")
 
     def _cast_to_pyarrow_schema(self, optional_where_clauses):
         casted_where_clauses = []
@@ -123,10 +101,10 @@ class Wherehouse:
 
     def _construct_sql_statement(
         self,
-        cluster_values: List,
+        cluster_values: List[Any],
+        optional_where_clauses: List[Tuple[str, str, Any]] = [],
         columns: List[str] = None,
-        where_clause: str = None,
-    ):
+    ) -> str:
         """
         Create a sql statement that can be given to s3's select_object_content().
         When doing column projections with Parquet as the InputSerialization, I've
@@ -134,14 +112,17 @@ class Wherehouse:
 
         Parameters
         ----------
-        cluster_values : List
-            List of cluster values that you want include in the WHERE clause. These
-            will be set to equality and combined with "OR"
+        cluster_values : List[Any]
+            List of cluster values that you want included in the WHERE clause as
+            `cluster_column in (cv0, cv1, cv2)`
+        optional_where_clauses : List[Tuple[str, str, Any]], optional
+            List of optional columns to further restrict the parquet files to be
+            queried. Each tuple is three values column_name,
+            comparision operator [>=, >, =, ==, <, <=], value. This will be logically
+            connected using "AND" between each in the list and with the
+            cluster_column_values. Default is []
         columns : List[str]
             Specify the subset of columns to select. Default is None which is select *
-        where_clause : str
-            Any additional where clause that will be "AND" with cluster_values.
-            Default is None
 
         Returns
         -------
@@ -149,37 +130,75 @@ class Wherehouse:
             SQL statement to pass to s3.select_object_content()
         """
         if columns:
-            proj_col = ""
-            for i, col_name in enumerate(columns):
-                if i == 0:
-                    proj_col += f'"{col_name}"'
-                else:
-                    proj_col += f', "{col_name}"'
+            proj_cols = []
+            for col in columns:
+                proj_cols.append(self.s3_table.columns[col])
+            stmt = sa.select(*proj_cols)
         else:
-            proj_col = "*"
+            stmt = sa.select(self.s3_table)
+        stmt = stmt.where(
+            self.s3_table.columns[self.metastore.cluster_column].in_(cluster_values)
+        )
 
-        where_statement = "("
-        for i, cluster_value in enumerate(cluster_values):
-            if i == 0:
-                where_statement += f"{self.metastore.cluster_column}='{cluster_value}'"
+        # Handle optional where clauses
+        for (col, op, value) in optional_where_clauses:
+            table_col = self.s3_table.columns[col]
+            # Handle datetime and date the same for s3.select
+            if isinstance(table_col.type, sa.DateTime) or isinstance(
+                table_col.type, sa.Date
+            ):
+                value = sa.func.TO_TIMESTAMP(value.isoformat())
+            if op == ">=":
+                stmt = stmt.where(table_col >= value)
+            elif op == ">":
+                stmt = stmt.where(table_col > value)
+            elif op == "=" or op == "==":
+                stmt = stmt.where(table_col == value)
+            elif op == "<":
+                stmt = stmt.where(table_col < value)
+            elif op == "<=":
+                stmt = stmt.where(table_col <= value)
             else:
-                where_statement += (
-                    f" OR {self.metastore.cluster_column}='{cluster_value}'"
+                self.logger.error(
+                    f"optional_where_clause {op} is not a valid comparision"
                 )
-        where_statement += ")"
+                raise ValueError(f"{op} is not a valid comparision")
 
-        if where_clause:
-            where_statement += f" AND ({where_clause})"
-
-        sql_statement = f"""
-            SELECT {proj_col}
-            FROM s3object
-            WHERE {where_statement}
-        """
+        sql_statement = str(stmt.compile(compile_kwargs={"literal_binds": True}))
 
         return sql_statement
 
-    def _select_worker(self, filepath, cluster_values, columns=None, where_clause=None):
+    def _select_worker(
+        self,
+        filepath: str,
+        cluster_values: List[Any],
+        optional_where_clauses: List[Tuple[str, str, Any]] = [],
+        columns: List[str] = None,
+    ):
+        """_summary_
+
+        Parameters
+        ----------
+        filepath : str
+            S3 filepath to run the query against
+        cluster_values : List[Any]
+            List of cluster values that you want included in the WHERE clause as
+            `cluster_column in (cv0, cv1, cv2)`
+        optional_where_clauses : List[Tuple[str, str, Any]], optional
+            List of optional columns to further restrict the parquet files to be
+            queried. Each tuple is three values column_name,
+            comparision operator [>=, >, =, ==, <, <=], value. This will be logically
+            connected using "AND" between each in the list and with the
+            cluster_column_values. Default is []
+        columns : List[str], optional
+            Specify the subset of columns to select. Default is None which is select *
+
+        Returns
+        -------
+        _type_
+            _description_
+        """
+
         start = datetime.now()
         s3_client = boto3.session.Session().client(
             "s3", region_name=self.file_system.region
@@ -188,7 +207,7 @@ class Wherehouse:
         key = "/".join(filepath.split("/")[1:])
 
         sql_statement = self._construct_sql_statement(
-            cluster_values, columns, where_clause
+            cluster_values, optional_where_clauses, columns
         )
 
         try:
@@ -289,7 +308,7 @@ class Wherehouse:
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
 
-        optional_where_clauses = self._cast_to_pyarrow_schema(optional_where_clauses)
+        # optional_where_clauses = self._cast_to_pyarrow_schema(optional_where_clauses)
         filepaths_to_cluster_values = self.metastore.query(
             cluster_column_values, optional_where_clauses
         )
@@ -307,21 +326,6 @@ class Wherehouse:
         query_schema_safe = pa.schema(query_fields_safe)
         query_schema = pa.schema(query_fields)
 
-        where_clause = ""
-        for idx, (col_name, compare_op, value) in enumerate(optional_where_clauses):
-            # Take care of formatting issues
-            if (
-                pa.types.is_string(value.type)
-                or pa.types.is_date(value.type)
-                or pa.types.is_timestamp(value.type)
-            ):
-                value = f"'{value}'"
-
-            if idx == 0:
-                where_clause += f"{col_name}{compare_op}{value}"
-            else:
-                where_clause += f" AND {col_name}{compare_op}{value}"
-
         batches = []
         n_records = 0
         bytes_scanned = 0
@@ -334,8 +338,8 @@ class Wherehouse:
                     self._select_worker,
                     filepath,
                     cluster_values,
+                    optional_where_clauses,
                     columns,
-                    where_clause,
                 )
                 future_to_file[future] = filepath
 
@@ -435,8 +439,8 @@ class Wherehouse:
         cluster_column_values,
         optional_where_clauses: List[Tuple] = [],
         columns: List[str] = None,
-        batch_size: int = 131072,
-        n_records_max: int = 2000000,
+        batch_size: int = 131_072,
+        n_records_max: int = 2_000_000,
     ) -> pa.lib.Table:
         """
         Retrieve records from the parquet files where
@@ -480,19 +484,13 @@ class Wherehouse:
         else:
             batch_schema = self.metastore.arrow_schema
 
-        # Cast the values in the optional_where_clause to pyarrow types
-        optional_where_clauses = self._cast_to_pyarrow_schema(optional_where_clauses)
         filepaths_to_cluster_values = self.metastore.query(
             cluster_column_values, optional_where_clauses
         )
         filepaths = list(filepaths_to_cluster_values.keys())
 
-        # Construct the cluster_column values filter. "or" the results
-        ds_filter = ds.field(self.metastore.cluster_column) == cluster_column_values[0]
-        for cluster_value in cluster_column_values[1:]:
-            ds_filter = ds_filter | (
-                ds.field(self.metastore.cluster_column) == cluster_value
-            )
+        # Construct the cluster_column values filter
+        ds_filter = ds.field(self.metastore.cluster_column).isin(cluster_column_values)
 
         # Add in the optional_where_clauses
         for col_name, compare_op, value in optional_where_clauses:

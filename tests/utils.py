@@ -20,19 +20,27 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
+import pytz
 from string import hexdigits
 from typing import Union
 
 
 def yield_tables(
-    n_files: int = 10, n_records_per_file: int = 100, use_date: bool = False
+    n_files: int = 10,
+    n_records_per_file: int = 100,
+    use_date: bool = False,
+    timezone: str = None,
 ):
     n_data = n_records_per_file * n_files
     rng = np.random.default_rng(812)
+    if timezone:
+        tz = pytz.timezone(timezone)
+    else:
+        tz = None
 
     pa_fields = [
         ("id", pa.string()),
-        ("timestamp", pa.timestamp("us")),
+        ("timestamp", pa.timestamp("us", tz=tz)),
         ("x", pa.int32()),
     ]
     if use_date:
@@ -47,14 +55,14 @@ def yield_tables(
     for i in range(n_files):
         epoch_min = starting_epoch + i * delta
         epoch_max = epoch_min + int(delta // 2)
-        timestamps = [datetime.fromtimestamp(epoch_min)]
+        timestamps = [datetime.fromtimestamp(epoch_min, tz=tz)]
         for e in rng.integers(
             epoch_min + (60 * 60 * 24),
             epoch_max - (60 * 60 * 24),
             n_records_per_file - 2,
         ):
-            timestamps.append(datetime.fromtimestamp(e))
-        timestamps.append(datetime.fromtimestamp(epoch_max))
+            timestamps.append(datetime.fromtimestamp(e, tz=tz))
+        timestamps.append(datetime.fromtimestamp(epoch_max, tz=tz))
         if use_date:
             timestamps = [ts.date() for ts in timestamps]
 
@@ -74,13 +82,16 @@ def write_parquet_files(
     n_records_per_file: int = 100,
     row_group_size: int = 20,
     use_date: bool = False,
+    timezone: str = None,
 ):
     if isinstance(output_dir, str):
         output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     basename = f"{output_dir}/part"
-    for idx, table in enumerate(yield_tables(n_files, n_records_per_file, use_date)):
+    for idx, table in enumerate(
+        yield_tables(n_files, n_records_per_file, use_date, timezone)
+    ):
         min_id = pc.min(table.column(0))
         max_id = pc.max(table.column(0))
         min_ts = pc.min(table.column(1)).cast(pa.date32())

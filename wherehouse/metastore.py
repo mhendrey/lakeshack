@@ -22,6 +22,7 @@ import logging.config
 import pyarrow as pa
 from pyarrow import fs
 import pyarrow.parquet as pq
+import pytz
 import sqlalchemy as sa
 from typing import Dict, List, Tuple, Union, Any
 
@@ -281,7 +282,9 @@ class Metastore:
             {"error_msg": msg, "data": Dict[str, Any]}
         """
         try:
-            metadata = pq.ParquetFile(file_system.open_input_file(filepath)).metadata
+            pq_file = pq.ParquetFile(file_system.open_input_file(filepath))
+            metadata = pq_file.metadata
+            arrow_schema = pq_file.schema_arrow
         except pa.ArrowException as exc:
             return {"error_msg": f"ERROR for {filepath}: {exc}", "data": {}}
 
@@ -290,9 +293,26 @@ class Metastore:
             col_name = metadata.schema[idx].name
             col_min = metadata.row_group(0).column(idx).statistics.min
             col_max = metadata.row_group(0).column(idx).statistics.max
+            # Parquet metadata seems to cast timezones to UTC. This casts them back
+            if pa.types.is_timestamp(arrow_schema[idx].type):
+                if arrow_schema[idx].type.tz is not None:
+                    col_min = col_min.astimezone(
+                        tz=pytz.timezone(arrow_schema[idx].type.tz)
+                    )
+                    col_max = col_max.astimezone(
+                        tz=pytz.timezone(arrow_schema[idx].type.tz)
+                    )
             for r in range(metadata.num_row_groups):
                 rg_min = metadata.row_group(r).column(idx).statistics.min
                 rg_max = metadata.row_group(r).column(idx).statistics.max
+                if pa.types.is_timestamp(arrow_schema[idx].type):
+                    if arrow_schema[idx].type.tz is not None:
+                        rg_min = rg_min.astimezone(
+                            tz=pytz.timezone(arrow_schema[idx].type.tz)
+                        )
+                        rg_max = rg_max.astimezone(
+                            tz=pytz.timezone(arrow_schema[idx].type.tz)
+                        )
                 if rg_min < col_min:
                     col_min = rg_min
                 if rg_max > col_max:
@@ -461,6 +481,12 @@ class Metastore:
             return sa.Date
         elif pa.types.is_timestamp(pa_type):
             return sa.DateTime
+            # if pa_type.tz is not None:
+            #    return sa.DateTime(
+            #        timezone=False
+            #    )  # Should be true; but reflection doesn't pick up the timezone=True
+            # else:
+            #    return sa.DateTime(timezone=False)
 
     def _create_table(self) -> None:
         """
