@@ -34,11 +34,14 @@ from wherehouse.metastore import Metastore
 
 class Wherehouse:
     """
-    To speed up querying for records in Parquet files using a Metastore which contains
-    Parquet file metadata to speed things up.
+    Retrieve records stored in Parquet files by first checking the Metastore to
+    determine which Parquet files might have the requested records and then only
+    querying these files.
     """
 
-    def __init__(self, metastore: Metastore, file_system: fs.FileSystem):
+    def __init__(
+        self, metastore: Metastore, file_system: fs.FileSystem = fs.LocalFileSystem()
+    ):
         """
         Instantiate a Wherehouse that will use the metastore & file_system to speed
         up retrieval of records from the parquet files stored in the file_system.
@@ -50,10 +53,11 @@ class Wherehouse:
         from pyarrow import fs
 
         from wherehouse.metastore import Metastore
+        from wherehouse.wherehouse import Wherehouse
 
         s3 = fs.S3FileSystem(region="us-iso-east-1")
         dataset = ds.dataset(
-            "path/to/parquets/",
+            "path/in/s3/to/parquets/",
             format="parquet",
             file_system=s3,
         )
@@ -70,8 +74,9 @@ class Wherehouse:
         ----------
         metastore : Metastore
             Metastore containing the parquet file metadata that wherehouse will use
-        file_system : fs.FileSystem
-            pyarrow file system. E.g., fs.S3FileSystem or fs.LocalSystem
+        file_system : fs.FileSystem, optional
+            pyarrow file system. Use fs.S3FileSystem(region='your_region') for
+            connecting to S3. Default is fs.LocalSystem()
         """
         self.metastore = metastore
         self.file_system = file_system
@@ -85,6 +90,18 @@ class Wherehouse:
         self.s3_table = sa.Table("s3object", sa.MetaData(), *columns).alias("s")
 
     def _cast_to_pyarrow_schema(self, optional_where_clauses):
+        """This is deprecated now and marked for deletion
+
+        Parameters
+        ----------
+        optional_where_clauses : List[Tuple[str, str, Any]]
+            List of optional where clauses: ("col_name", "op", value)
+
+        Returns
+        -------
+        List[Tuple[str, str, Any]]
+            Casts the value to pyarrow datatypes
+        """
         casted_where_clauses = []
         for col_name, compare_op, value in optional_where_clauses:
             try:
@@ -175,7 +192,8 @@ class Wherehouse:
         optional_where_clauses: List[Tuple[str, str, Any]] = [],
         columns: List[str] = None,
     ):
-        """_summary_
+        """Use s3.select to retrieved records matching the cluster values and any
+        optional where clauses from the given filepath in S3.
 
         Parameters
         ----------
@@ -195,8 +213,9 @@ class Wherehouse:
 
         Returns
         -------
-        _type_
-            _description_
+        Dict
+            Dictionary containing 'data', 'BytesScanned', 'BytesProcessed', and
+            'BytesReturned'
         """
 
         start = datetime.now()
@@ -274,7 +293,8 @@ class Wherehouse:
         n_workers: int = 20,
     ) -> pa.lib.Table:
         """
-        Retrieve records from the parquet files stored in S3 using S3 Select
+        Retrieve records from the parquet files stored in S3 using S3 Select using a
+        threadpool to speed up the queries.
 
         Parameters
         ----------
@@ -443,10 +463,9 @@ class Wherehouse:
         n_records_max: int = 2_000_000,
     ) -> pa.lib.Table:
         """
-        Retrieve records from the parquet files where
-            "cluster_column == cluster_column_value"
-        in batches of batch_size. Stop returning results if n_records_max have already
-        been returned
+        Retrieve records from the parquet files using pyarrow's
+        isin(cluster_column_values) in batches of batch_size. Stop returning results
+        if n_records_max have already been returned.
 
         Parameters
         ----------

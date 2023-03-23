@@ -302,3 +302,32 @@ def test_query_dt(metastore_db_dt, pq_dir_dt):
     metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema)
     wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
     query_check(wherehouse, "dt")
+
+
+def test_batch_size_ts(metastore_db_ts, pq_dir_ts: str) -> None:
+    """Test that returned results don't exceed n_records_max + batch_size
+    'a9' has 9 records with the choosen random seed
+
+    Parameters
+    ----------
+    metastore_db_ts :
+        Path to a sqlite database storing the metastore table
+    pq_dir_ts : str
+        Directory containing the parquet files that have naive datetime
+    """
+    dbname = str(metastore_db_ts)
+    data_dir = str(pq_dir_ts)
+    dataset = ds.dataset(data_dir, format="parquet", filesystem=fs.LocalFileSystem())
+    pa_schema = dataset.schema
+
+    metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema)
+    wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
+
+    table = wherehouse.query("a9")
+    assert table.num_rows == 9, f"{table.num_rows=:}, expected this to be == 9"
+
+    table = wherehouse.query("a9", batch_size=2, n_records_max=6)
+    assert table.num_rows <= 8, f"{table.num_rows=:}, expected this to be <= 8"
+
+    table = wherehouse.query("a9", batch_size=1, n_records_max=6)
+    assert table.num_rows <= 7, f"{table.num_rows=:}, expected this to be <= 7"

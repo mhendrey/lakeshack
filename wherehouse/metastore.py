@@ -211,7 +211,7 @@ class Metastore:
         from pyarrow import fs
 
         s3 = fs.S3FileSystem(region="us-east-1")
-        parquet_dir = "s3/path/to/parquets/"
+        parquet_dir = "path/in/s3/to/parquets/"
         metastore.update(parquet_dir, file_system=s3)
         ```
 
@@ -243,19 +243,37 @@ class Metastore:
             ), "gathered metadata length does not match number of database columns"
 
         with self.engine.connect() as conn:
+            # If filepath is already in the metastore, then skip it
+            # This may need to be done faster in the future
+            # Maybe make a temp table with filepaths to add and join with existing
+            # metastore.
+            add_metadata = []
+            for m in metadata:
+                r = conn.execute(
+                    sa.select(self.table.c.filepath).where(
+                        self.table.c.filepath == m["filepath"]
+                    )
+                ).fetchone()
+                if r:
+                    self.logger.warning(
+                        f"update() {r[0]} already in metastore. Skipping it"
+                    )
+                else:
+                    add_metadata.append(m)
             try:
-                conn.execute(
-                    sa.insert(self.table),
-                    metadata,
-                )
-                conn.commit()
+                if add_metadata:
+                    conn.execute(
+                        sa.insert(self.table),
+                        add_metadata,
+                    )
+                    conn.commit()
             except sa.exc.IntegrityError as exc:
                 self.logger.error(f"update() threw {exc}")
-                metadata = []
+                add_metadata = []
 
         end = datetime.now()
         self.logger.info(
-            f"update({parquet_file_or_dir}) added {len(metadata):,} "
+            f"update({parquet_file_or_dir}) added {len(add_metadata):,} "
             + f"records in {end-start}"
         )
 
