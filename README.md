@@ -2,7 +2,7 @@
 
 ![lakeshack logo](/images/lakeshack_128.png)
 
-A simplified data lake, more of a data shack, optimized for retrieving filtered records
+A simplified data lakehouse, more of a data shack, optimized for retrieving filtered records
 from Parquet files. Lakeshack gathers up the min/max values for specified columns from
 each Parquet file and stores them into a database. When you want to query for a set of
 records, it first checks the database to get the list of Parquet files that might have
