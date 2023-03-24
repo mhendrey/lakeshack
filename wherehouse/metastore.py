@@ -244,22 +244,22 @@ class Metastore:
 
         with self.engine.connect() as conn:
             # If filepath is already in the metastore, then skip it
-            # This may need to be done faster in the future
-            # Maybe make a temp table with filepaths to add and join with existing
-            # metastore.
             add_metadata = []
-            for m in metadata:
-                r = conn.execute(
+            existing_filepaths = [
+                r[0]
+                for r in conn.execute(
                     sa.select(self.table.c.filepath).where(
-                        self.table.c.filepath == m["filepath"]
+                        self.table.c.filepath.in_([a["filepath"] for a in metadata])
                     )
-                ).fetchone()
-                if r:
-                    self.logger.warning(
-                        f"update() {r[0]} already in metastore. Skipping it"
-                    )
-                else:
+                ).fetchall()
+            ]
+            for m in metadata:
+                if m["filepath"] not in existing_filepaths:
                     add_metadata.append(m)
+                else:
+                    self.logger.warning(
+                        f"update() {m['filepath']} already in metastore. Skipping it"
+                    )
             try:
                 if add_metadata:
                     conn.execute(
