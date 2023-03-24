@@ -23,8 +23,8 @@ import pytest
 import pytz
 
 from .utils import write_parquet_files
-from wherehouse.metastore import Metastore
-from wherehouse.wherehouse import Wherehouse
+from lakeshack.metastore import Metastore
+from lakeshack.lakeshack import Lakeshack
 
 
 @pytest.fixture(scope="session")
@@ -195,23 +195,23 @@ def metastore_db_dt(tmp_path_factory: Path, pq_dir_dt):
     return dbname
 
 
-def query_check(wherehouse: Wherehouse, timestamp_type: str):
+def query_check(lakeshack: Lakeshack, timestamp_type: str):
     """Check that querying for cluster column values works as expected
 
     Parameters
     ----------
-    wherehouse : Wherehouse
-        Wherehouse to check
+    lakeshack : Lakeshack
+        Lakeshack to check
     timestamp_type : str
         Use 'ts' | 'tz' | 'dt' to specify whether the timestamp column in parquet
         files are datetime (naive), datetime (tz aware) , or date
     """
     queries = ["01", "22", "35", "4f", "70", "8a", "a0", "bf", "d1", "f0"]
 
-    table = wherehouse.query("00")
+    table = lakeshack.query("00")
     assert table.num_rows == 3, f"test_query: Returned {table.num_rows} instead of 3"
 
-    table = wherehouse.query(queries, columns=["id", "x"])
+    table = lakeshack.query(queries, columns=["id", "x"])
     assert table.num_rows == 31, f"test_query: Returned {table.num_rows} instead of 31"
     assert (
         table.num_columns == 2
@@ -233,7 +233,7 @@ def query_check(wherehouse: Wherehouse, timestamp_type: str):
     else:
         raise ValueError(f"{timestamp=:} does not match 'ts', 'tz', or 'dt'")
 
-    table = wherehouse.query(
+    table = lakeshack.query(
         "00", optional_where_clauses=[("timestamp", "<=", timestamp)]
     )
     assert table.num_rows == 2, f"query_check: Returned {table.num_rows} instead of 2"
@@ -258,8 +258,8 @@ def test_query_ts(metastore_db_ts, pq_dir_ts):
     pa_schema = dataset.schema
 
     metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema)
-    wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
-    query_check(wherehouse, "ts")
+    lakeshack = Lakeshack(metastore, fs.LocalFileSystem())
+    query_check(lakeshack, "ts")
 
 
 def test_query_tz(metastore_db_tz, pq_dir_tz):
@@ -279,8 +279,8 @@ def test_query_tz(metastore_db_tz, pq_dir_tz):
     pa_schema = dataset.schema
 
     metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema)
-    wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
-    query_check(wherehouse, "tz")
+    lakeshack = Lakeshack(metastore, fs.LocalFileSystem())
+    query_check(lakeshack, "tz")
 
 
 def test_query_dt(metastore_db_dt, pq_dir_dt):
@@ -300,8 +300,8 @@ def test_query_dt(metastore_db_dt, pq_dir_dt):
     pa_schema = dataset.schema
 
     metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema)
-    wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
-    query_check(wherehouse, "dt")
+    lakeshack = Lakeshack(metastore, fs.LocalFileSystem())
+    query_check(lakeshack, "dt")
 
 
 def test_batch_size_ts(metastore_db_ts, pq_dir_ts: str) -> None:
@@ -321,13 +321,13 @@ def test_batch_size_ts(metastore_db_ts, pq_dir_ts: str) -> None:
     pa_schema = dataset.schema
 
     metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema)
-    wherehouse = Wherehouse(metastore, fs.LocalFileSystem())
+    lakeshack = Lakeshack(metastore, fs.LocalFileSystem())
 
-    table = wherehouse.query("a9")
+    table = lakeshack.query("a9")
     assert table.num_rows == 9, f"{table.num_rows=:}, expected this to be == 9"
 
-    table = wherehouse.query("a9", batch_size=2, n_records_max=6)
+    table = lakeshack.query("a9", batch_size=2, n_records_max=6)
     assert table.num_rows <= 8, f"{table.num_rows=:}, expected this to be <= 8"
 
-    table = wherehouse.query("a9", batch_size=1, n_records_max=6)
+    table = lakeshack.query("a9", batch_size=1, n_records_max=6)
     assert table.num_rows <= 7, f"{table.num_rows=:}, expected this to be <= 7"

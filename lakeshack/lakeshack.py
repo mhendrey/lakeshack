@@ -29,10 +29,10 @@ import pyarrow.dataset as ds
 import sqlalchemy as sa
 from typing import Any, List, Tuple
 
-from wherehouse.metastore import Metastore
+from lakeshack.metastore import Metastore
 
 
-class Wherehouse:
+class Lakeshack:
     """
     Retrieve records stored in Parquet files by first checking the Metastore to
     determine which Parquet files might have the requested records and then only
@@ -40,11 +40,11 @@ class Wherehouse:
     """
 
     def __init__(
-        self, metastore: Metastore, file_system: fs.FileSystem = fs.LocalFileSystem()
+        self, metastore: Metastore, filesystem: fs.FileSystem = fs.LocalFileSystem()
     ):
         """
-        Instantiate a Wherehouse that will use the metastore & file_system to speed
-        up retrieval of records from the parquet files stored in the file_system.
+        Instantiate a Lakeshack that will use the metastore & filesystem to speed
+        up retrieval of records from the parquet files stored in the filesystem.
 
         Example:
 
@@ -52,14 +52,14 @@ class Wherehouse:
         import pyarrow.dataset as ds
         from pyarrow import fs
 
-        from wherehouse.metastore import Metastore
-        from wherehouse.wherehouse import Wherehouse
+        from lakeshack.metastore import Metastore
+        from lakeshack.lakeshack import Lakeshack
 
         s3 = fs.S3FileSystem(region="us-iso-east-1")
         dataset = ds.dataset(
             "path/in/s3/to/parquets/",
             format="parquet",
-            file_system=s3,
+            filesystem=s3,
         )
         metastore = Metastore(
             "sqlite:///some.db",
@@ -67,19 +67,21 @@ class Wherehouse:
             dataset.schema,
             "id",
         )
-        wherehouse = Wherehouse(metastore, s3)
+        metastore.update("path/in/s3/to/parquets/", s3, n_workers=20)
+        lakeshack = Lakeshack(metastore, s3)
+        pa_table = lakeshack.query_s3_select("some_id", n_workers=20)
         ```
 
         Parameters
         ----------
         metastore : Metastore
-            Metastore containing the parquet file metadata that wherehouse will use
-        file_system : fs.FileSystem, optional
+            Metastore containing the parquet file metadata that lakeshack will use
+        filesystem : fs.FileSystem, optional
             pyarrow file system. Use fs.S3FileSystem(region='your_region') for
             connecting to S3. Default is fs.LocalSystem()
         """
         self.metastore = metastore
-        self.file_system = file_system
+        self.filesystem = filesystem
         self.logger = logging.getLogger(__name__)
 
         columns = []
@@ -88,33 +90,6 @@ class Wherehouse:
             db_type = Metastore._map_pa_type(col_arrow.type)
             columns.append(sa.Column(col_name, db_type, quote=True))
         self.s3_table = sa.Table("s3object", sa.MetaData(), *columns).alias("s")
-
-    def _cast_to_pyarrow_schema(self, optional_where_clauses):
-        """This is deprecated now and marked for deletion
-
-        Parameters
-        ----------
-        optional_where_clauses : List[Tuple[str, str, Any]]
-            List of optional where clauses: ("col_name", "op", value)
-
-        Returns
-        -------
-        List[Tuple[str, str, Any]]
-            Casts the value to pyarrow datatypes
-        """
-        casted_where_clauses = []
-        for col_name, compare_op, value in optional_where_clauses:
-            try:
-                idx = self.metastore.arrow_schema.names.index(col_name)
-            except ValueError:
-                self.logger.warning(
-                    f"_cast_to_pyarrow_schema: {col_name} not in metastore.arrow_schema"
-                )
-            else:
-                pa_type = self.metastore.arrow_schema.types[idx]
-                value = pc.cast(value, pa_type)
-                casted_where_clauses.append((col_name, compare_op, value))
-        return casted_where_clauses
 
     def _construct_sql_statement(
         self,
@@ -177,7 +152,8 @@ class Wherehouse:
                 stmt = stmt.where(table_col <= value)
             else:
                 self.logger.error(
-                    f"optional_where_clause {op} is not a valid comparision"
+                    f"_construct_sql_statement() optional_where_clause {op} is not "
+                    + "a valid comparision"
                 )
                 raise ValueError(f"{op} is not a valid comparision")
 
@@ -220,7 +196,7 @@ class Wherehouse:
 
         start = datetime.now()
         s3_client = boto3.session.Session().client(
-            "s3", region_name=self.file_system.region
+            "s3", region_name=self.filesystem.region
         )
         bucket = filepath.split("/")[0]
         key = "/".join(filepath.split("/")[1:])
@@ -239,7 +215,7 @@ class Wherehouse:
                 OutputSerialization={"JSON": {"RecordDelimiter": "\n"}},
             )
         except ClientError as exc:
-            self.logger.error(f"_select_worker: {filepath} threw: {exc}")
+            self.logger.error(f"_select_worker() {filepath} threw: {exc}")
             return {
                 "data": [],
                 "BytesScanned": 0,
@@ -266,13 +242,15 @@ class Wherehouse:
                 try:
                     record = json.loads(s)
                 except Exception as exc:
-                    self.logger.error(f"Failed to json load {s}: {exc}")
+                    self.logger.error(
+                        f"_select_worker() Failed to json load {s}: {exc}"
+                    )
                 else:
                     records.append(record)
         end = datetime.now()
 
         self.logger.debug(
-            f"_select_worker: {filepath} took {end-start} for {len(records)} "
+            f"_select_worker() {filepath} took {end-start} for {len(records)} "
             + f"scanned={bytes_scanned/1024**2:.0f}MB, "
             + f"processed={bytes_processed/1024**2:.0f}MB "
             + f"returned={bytes_returned/1024:.0f}KB"
@@ -322,8 +300,8 @@ class Wherehouse:
         pa.lib.Table
         """
         start = datetime.now()
-        if not isinstance(self.file_system, fs.S3FileSystem):
-            raise TypeError(f"file_system must be S3. You have {self.file_system}")
+        if not isinstance(self.filesystem, fs.S3FileSystem):
+            raise TypeError(f"filesystem must be S3. You have {self.filesystem}")
 
         if not isinstance(cluster_column_values, list):
             cluster_column_values = [cluster_column_values]
@@ -369,7 +347,7 @@ class Wherehouse:
                 try:
                     data = future.result()
                 except Exception as exc:
-                    self.logger.error(f"query_s3_select: {filepath} threw: {exc}")
+                    self.logger.error(f"query_s3_select() {filepath} threw: {exc}")
                 else:
                     if data["data"]:
                         n_records += len(data["data"])
@@ -419,7 +397,7 @@ class Wherehouse:
         try:
             table = table.cast(query_schema)
             self.logger.warning(
-                "query_s3_select-pyarrow fixed their date/timestamp casting"
+                "query_s3_select() pyarrow fixed their date/timestamp casting"
             )
         except Exception:
             df = table.to_pandas()
@@ -432,7 +410,7 @@ class Wherehouse:
                 )
             except Exception as exc:
                 self.logger.error(
-                    "query_s3_select-Failed to cast back to original schema:"
+                    "query_s3_select() Failed to cast back to original schema:"
                     + f"{exc}. Leaving date/timestamp as strings."
                 )
 
@@ -442,7 +420,7 @@ class Wherehouse:
         n_files = len(filepaths_to_cluster_values)
         elapsed_time = end - start
         self.logger.info(
-            "query_s3_select-FINISHED "
+            "query_s3_select() FINISHED "
             + f"{n_queries=:},"
             + f"{n_files=:},"
             + f"{n_records=:},"
@@ -529,7 +507,7 @@ class Wherehouse:
         batches = []
         if filepaths:
             dataset = ds.dataset(
-                filepaths, format="parquet", filesystem=self.file_system
+                filepaths, format="parquet", filesystem=self.filesystem
             )
             record_batches = dataset.to_batches(
                 columns=columns,
@@ -550,7 +528,7 @@ class Wherehouse:
         n_files = len(filepaths_to_cluster_values)
         elapsed_time = end - start
         self.logger.info(
-            "query-FINISHED "
+            "query() FINISHED "
             + f"{n_queries=:},"
             + f"{n_files=:},"
             + f"{n_records=:},"

@@ -61,6 +61,7 @@ class Metastore:
             ds.schema,
             "id",
         )
+        metastore.update("/path/to/parquet/dir/")
         ```
 
         which creates the table "some_table" in the database with columns
@@ -235,7 +236,7 @@ class Metastore:
         metadata = self._gather_metadata(parquet_file_or_dir, file_system, n_workers)
 
         if not metadata:
-            self.logger.warning(f"update-No metadata found in {parquet_file_or_dir}")
+            self.logger.warning(f"update() No metadata found in {parquet_file_or_dir}")
             return None
         else:
             assert len(metadata[0]) == (
@@ -403,9 +404,13 @@ class Metastore:
                         metadata.append(data)
                     else:
                         if result["error_msg"].startswith("ERROR"):
-                            self.logger.error(result["error_msg"])
+                            self.logger.error(
+                                f'_gather_metadata() {result["error_msg"]}'
+                            )
                         else:
-                            self.logger.info(result["error_msg"])
+                            self.logger.info(
+                                f'_gather_metadata() {result["error_msg"]}'
+                            )
 
         return metadata
 
@@ -463,7 +468,7 @@ class Metastore:
                     stmt = stmt.where(value >= col_min)
                 else:
                     self.logger.error(
-                        f"optional_where_clause {op} is not a valid comparision"
+                        f"query() optional_where_clause {op} is not a valid comparision"
                     )
                     raise ValueError(f"{op} is not a valid comparision")
 
@@ -472,7 +477,7 @@ class Metastore:
                     pq_files[filepath].append(cluster_column_value)
 
         end = datetime.now()
-        self.logger.info(f"query returned {len(pq_files)} results in {end-start}")
+        self.logger.info(f"query() returned {len(pq_files)} results in {end-start}")
 
         return pq_files
 
@@ -543,8 +548,9 @@ class Metastore:
                 )
             else:
                 self.logger.warning(
-                    f"{col} with {arrow_type=:} failed to map to database type. "
-                    + f"Not adding {col}_min or {col}_max to database table"
+                    f"_create_table() {col} with {arrow_type=:} failed to map to "
+                    + f"database type. Not adding {col}_min or {col}_max to database "
+                    + "table"
                 )
 
         self.table = sa.Table(

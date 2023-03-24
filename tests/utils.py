@@ -84,6 +84,23 @@ def write_parquet_files(
     use_date: bool = False,
     timezone: str = None,
 ):
+    """Generate some parquet files for testing purposes
+
+    Parameters
+    ----------
+    output_dir : Union[str, Path]
+        Output directory to write parquet files to
+    n_files : int, optional
+        Number of parquet files to write, by default 10
+    n_records_per_file : int, optional
+        Number of records per file, by default 100
+    row_group_size : int, optional
+        Number of row groups to have per file, by default 20
+    use_date : bool, optional
+        If True make the timestamp column dates, by default False (datetime)
+    timezone : str, optional
+        Timezone to use for timestamp column, by default None (naive)
+    """
     if isinstance(output_dir, str):
         output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

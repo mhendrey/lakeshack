@@ -23,7 +23,7 @@ import pytz
 from sqlalchemy import select
 
 from .utils import write_parquet_files
-from wherehouse.metastore import Metastore
+from lakeshack.metastore import Metastore
 
 
 @pytest.fixture(scope="session")
