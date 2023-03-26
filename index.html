@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lakeshack &mdash; Lakeshack 0.2.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Lakeshack" href="lakeshack.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Lakeshack
+              <img src="_static/lakeshack_128.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lakeshack.html">Lakeshack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#partitioning-clustering-strategy">Partitioning &amp; Clustering Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#partitioning">Partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#clustering">Clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#metastore">Metastore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#initialize">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#update">Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#query">Query</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#id1">Lakeshack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#id2">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#id3">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#query-s3-select">Query S3 Select</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">lakeshack.metastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html#module-lakeshack.lakeshack">lakeshack.lackshack</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Lakeshack</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Lakeshack</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="lakeshack">
+<h1>Lakeshack<a class="headerlink" href="#lakeshack" title="Permalink to this headline">¶</a></h1>
+<img alt="A small rustic shack on the shores of a big lake" class="align-center" src="images/lakeshack_128.png" />
+<img alt="A small rustic shack on the shores of a big lake" class="align-center" src="_images/lakeshack_128.png" />
+<hr class="docutils" />
+<p>A simplified data lakehouse, more of a data lakeshack, optimized for retrieving
+filtered records from Parquet files. Similar to the various lakehouse solutions
+(Iceberg, Hudi, Delta Lake), Lakeshack gathers up the min/max values for specified
+columns from each Parquet file and stores them into a database (Metastore). When you
+want to query for a set of records, it first check the Metastore to get the list of
+Parquet files that <strong>might</strong> have the desired records, and then only queries those
+Parquet files. The files may be stored locally or in S3. You may query using either
+native pyarrow or leverage S3 Select.</p>
+<p>To achieve optimal performance, a partitioning strategy for how records are to be
+written to the Parquet files must align with the main query pattern must be
+implemented.  See the documentation for more information on this.</p>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Lakeshack may be install using pip:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">lakeshack</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="documentation">
+<h1>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h1>
+<p>Documentation can be found at <a class="reference external" href="https://mhendrey.github.io/lakeshack">https://mhendrey.github.io/lakeshack</a></p>
+</div>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lakeshack.html">Lakeshack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#partitioning-clustering-strategy">Partitioning &amp; Clustering Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#metastore">Metastore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#id1">Lakeshack</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">lakeshack.metastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html#module-lakeshack.lakeshack">lakeshack.lackshack</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lakeshack.html" class="btn btn-neutral float-right" title="Lakeshack" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Matthew Hendrey.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

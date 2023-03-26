@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lakeshack.metastore &mdash; Lakeshack 0.2.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Lakeshack" href="lakeshack.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Lakeshack
+              <img src="_static/lakeshack_128.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="lakeshack.html">Lakeshack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#partitioning-clustering-strategy">Partitioning &amp; Clustering Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#partitioning">Partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#clustering">Clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#metastore">Metastore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#initialize">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#update">Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#query">Query</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="lakeshack.html#id1">Lakeshack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#id2">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#id3">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lakeshack.html#query-s3-select">Query S3 Select</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">lakeshack.metastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#module-lakeshack.lakeshack">lakeshack.lackshack</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Lakeshack</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">lakeshack.metastore</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-lakeshack.metastore">
+<span id="lakeshack-metastore"></span><h1>lakeshack.metastore<a class="headerlink" href="#module-lakeshack.metastore" title="Permalink to this headline">¶</a></h1>
+<p>Copyright (C) 2022 Matthew Hendrey</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="class">
+<dt id="lakeshack.metastore.Metastore">
+<em class="property">class </em><code class="sig-prename descclassname">lakeshack.metastore.</code><code class="sig-name descname">Metastore</code><span class="sig-paren">(</span><em class="sig-param">store_url: str</em>, <em class="sig-param">store_table: str</em>, <em class="sig-param">arrow_schema: pyarrow.lib.Schema</em>, <em class="sig-param">cluster_column: str = None</em>, <em class="sig-param">*optional_columns: str</em>, <em class="sig-param">**store_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lakeshack/metastore.html#Metastore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lakeshack.metastore.Metastore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Store metadata from parquet files into a database using SQLAlchmey</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>store_url</strong> (<em>str</em>) – URL string to backend database. See sqlalchemy.create_engine() for more
+details and examples.</p></li>
+<li><p><strong>store_table</strong> (<em>str</em>) – Name of the table storing the parquet metadata</p></li>
+<li><p><strong>arrow_schema</strong> (<em>pa.lib.Schema</em>) – Arrow schema of the parquet files</p></li>
+<li><p><strong>cluster_column</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the column in the Arrow schema used for clustering the data. If
+<cite>None</cite> (default), then expecting the table to already exist.</p></li>
+<li><p><strong>*optional_columns</strong> (<em>str</em>) – Additional columns in the Arrow schema whose metadata is to be stored in
+the metastore. These should have some clustering in order to be useful,
+even if less clustering than in the <cite>cluster_column</cite></p></li>
+<li><p><strong>**store_kwargs</strong> (<em>Any</em><em>, </em><em>optional</em>) – Arguments to be passed to sqlalchemy.create_engine()</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="lakeshack.metastore.Metastore.engine">
+<code class="sig-name descname">engine</code><a class="headerlink" href="#lakeshack.metastore.Metastore.engine" title="Permalink to this definition">¶</a></dt>
+<dd><p>SQLAlchemy engine that connects to the database</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>sa.engine.base.Engine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="lakeshack.metastore.Metastore.table">
+<code class="sig-name descname">table</code><a class="headerlink" href="#lakeshack.metastore.Metastore.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>SQLAlchemy table holding the metadata</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>sa.sql.schema.Table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">fs</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">from</span> <span class="nn">lakeshack.metastore</span> <span class="kn">import</span> <span class="n">Metastore</span>
+
+<span class="n">s3</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-iso-east-1&quot;</span><span class="p">)</span>
+<span class="n">s3_dir</span> <span class="o">=</span> <span class="s2">&quot;sales_data/2023/03/15/&quot;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="n">s3_dir</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">)</span>
+
+<span class="n">metastore</span> <span class="o">=</span> <span class="n">Metastore</span><span class="p">(</span><span class="s2">&quot;sqlite:///:memory:&quot;</span><span class="p">,</span> <span class="s2">&quot;sales_table&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span>
+    <span class="s2">&quot;customer_id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">)</span>
+<span class="n">metastore</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">s3_dir</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="lakeshack.metastore.Metastore.query">
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">cluster_column_values: List[Any], optional_where_clauses: List[Tuple] = []</em><span class="sig-paren">)</span> &#x2192; Dict[str, List[Any]]<a class="reference internal" href="_modules/lakeshack/metastore.html#Metastore.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lakeshack.metastore.Metastore.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given the <cite>cluster_column_values</cite> return the filepaths of the parquet
+files whose min/max contains a cluster_column_value.</p>
+<p>If <cite>optional_where_clauses</cite> are provide, then further restrict the filepaths
+to return so they match these conditions too.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_column_values</strong> (<em>List</em><em>[</em><em>Any</em><em>]</em>) – List of cluster column values of interest</p></li>
+<li><p><strong>optional_where_clauses</strong> (<em>List</em><em>[</em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – List of optional columns to further restrict the parquet files to be
+queried. Each tuple is three values column_name,
+comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], and value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Keys are the filepaths to the parquet files. Values are a list of
+the cluster column values associated with that parquet file</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Dict[str, List[Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lakeshack.metastore.Metastore.update">
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">parquet_file_or_dir: str</em>, <em class="sig-param">filesystem: pyarrow._fs.FileSystem = &lt;pyarrow._fs.LocalFileSystem object&gt;</em>, <em class="sig-param">n_workers: int = 16</em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/lakeshack/metastore.html#Metastore.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lakeshack.metastore.Metastore.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add parquet file metadata to the metastore. If a directory is provided, then a
+recursive walk is done. Any non-parquet files are simply skipped and logged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parquet_file_or_dir</strong> (<em>str</em>) – Provide the filepath to either a single parquet file or a directory that
+contains many parquet files.</p></li>
+<li><p><strong>filesystem</strong> (<em>fs.FileSystem</em><em>, </em><em>optional</em>) – PyArrow file system where parquet files are located.
+Default is fs.LocalFileSystem()</p></li>
+<li><p><strong>n_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – Size of the thread pool used to concurrently retrieve parquet file
+metadata. Default is 16</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-lakeshack.lakeshack">
+<span id="lakeshack-lackshack"></span><h1>lakeshack.lackshack<a class="headerlink" href="#module-lakeshack.lakeshack" title="Permalink to this headline">¶</a></h1>
+<p>Copyright (C) 2022 Matthew Hendrey</p>
+<p>This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="class">
+<dt id="lakeshack.lakeshack.Lakeshack">
+<em class="property">class </em><code class="sig-prename descclassname">lakeshack.lakeshack.</code><code class="sig-name descname">Lakeshack</code><span class="sig-paren">(</span><em class="sig-param">metastore: lakeshack.metastore.Metastore</em>, <em class="sig-param">filesystem: pyarrow._fs.FileSystem = &lt;pyarrow._fs.LocalFileSystem object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/lakeshack/lakeshack.html#Lakeshack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lakeshack.lakeshack.Lakeshack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Retrieve records stored in Parquet files by first checking the Metastore to
+determine which Parquet files <strong>might</strong> have the requested records and then only
+querying these files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metastore</strong> (<a class="reference internal" href="#lakeshack.metastore.Metastore" title="lakeshack.metastore.Metastore"><em>Metastore</em></a>) – Metastore containing the parquet file metadata that lakeshack will use</p></li>
+<li><p><strong>filesystem</strong> (<em>fs.FileSystem</em><em>, </em><em>optional</em>) – pyarrow file system. Use fs.S3FileSystem(region=’your_region’) for
+connecting to S3. Default is fs.LocalSystem()</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="lakeshack.lakeshack.Lakeshack.s3_table">
+<code class="sig-name descname">s3_table</code><a class="headerlink" href="#lakeshack.lakeshack.Lakeshack.s3_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empty SQLAlchemy table used to make it easier to construct the SQL expression
+that gets passed to S3 Select.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>sa.sql.schema.Table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Example</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lakeshack.lakeshack</span> <span class="kn">import</span> <span class="n">Lakeshack</span>
+<span class="kn">from</span> <span class="nn">lakeshack.metastore</span> <span class="kn">import</span> <span class="n">Metastore</span>
+<span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">fs</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
+
+<span class="n">s3</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-iso-east-1&quot;</span><span class="p">)</span>
+<span class="n">s3_dir</span> <span class="o">=</span> <span class="s2">&quot;sales_data/2023/03/15/&quot;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="n">s3_dir</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">)</span>
+
+<span class="c1"># Connect to an existing metastore</span>
+<span class="n">metastore</span> <span class="o">=</span> <span class="n">Metastore</span><span class="p">(</span><span class="s2">&quot;sqlite:///sales.db&quot;</span><span class="p">,</span> <span class="s2">&quot;sales_table&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">lakeshake</span> <span class="o">=</span> <span class="n">Lakeshack</span><span class="p">(</span><span class="n">metastore</span><span class="p">,</span> <span class="n">s3</span><span class="p">)</span>
+
+<span class="n">pa_table</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="mi">55</span><span class="p">)</span>
+<span class="c1"># Use S3 Select using a thread pool with 50 workers</span>
+<span class="n">pa_s3_table</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query_s3_select</span><span class="p">(</span>
+    <span class="mi">55</span><span class="p">,</span>
+    <span class="n">n_workers</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="lakeshack.lakeshack.Lakeshack.query">
+<code class="sig-name descname">query</code><span class="sig-paren">(</span><em class="sig-param">cluster_column_values</em>, <em class="sig-param">optional_where_clauses: List[Tuple] = []</em>, <em class="sig-param">columns: List[str] = None</em>, <em class="sig-param">batch_size: int = 131072</em>, <em class="sig-param">n_records_max: int = 2000000</em><span class="sig-paren">)</span> &#x2192; pyarrow.lib.Table<a class="reference internal" href="_modules/lakeshack/lakeshack.html#Lakeshack.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lakeshack.lakeshack.Lakeshack.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve records from the parquet files using pyarrow’s
+isin(cluster_column_values) in batches of batch_size. Stop returning results
+if n_records_max have already been returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_column_values</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>]</em>) – cluster_column value you want to match on. Provide one or a list of many</p></li>
+<li><p><strong>optional_where_clauses</strong> (<em>List</em><em>[</em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – List of optional columns to further restrict the parquet files to be
+queried. Each tuple is three values column_name,
+comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], value. This will be logically
+connected using “AND” between each in the list and with the
+cluster_column_values</p></li>
+<li><p><strong>columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – The columns to return from parquet files. Default is None (all of them)</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Retrieve batches of this size from the dataset. Lower this value to manage
+RAM if needed. Default is 128 * 1024, same as pyarrow.Dataset.to_batches()</p></li>
+<li><p><strong>n_records_max</strong> (<em>int</em><em>, </em><em>optional</em>) – Once this many results have been exceed, stop retrieving results and return
+what has been retrieved so far. Thus, the Table.num_rows returned will be
+less than or equal to n_records_max + batch_size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pa.lib.Table</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="lakeshack.lakeshack.Lakeshack.query_s3_select">
+<code class="sig-name descname">query_s3_select</code><span class="sig-paren">(</span><em class="sig-param">cluster_column_values</em>, <em class="sig-param">optional_where_clauses: List[Tuple] = []</em>, <em class="sig-param">columns: List[str] = None</em>, <em class="sig-param">n_records_max: int = 2000000</em>, <em class="sig-param">n_workers: int = 20</em><span class="sig-paren">)</span> &#x2192; pyarrow.lib.Table<a class="reference internal" href="_modules/lakeshack/lakeshack.html#Lakeshack.query_s3_select"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lakeshack.lakeshack.Lakeshack.query_s3_select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve records from the parquet files stored in S3 using S3 Select using a
+threadpool to speed up the queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster_column_values</strong> (<em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em>) – Provide a single cluster column value or a list of them whose
+records you want to retrieve</p></li>
+<li><p><strong>optional_where_clauses</strong> (<em>List</em><em>[</em><em>Tuple</em><em>]</em><em>, </em><em>optional</em>) – List of optional columns to further restrict the parquet files to be
+queried. Each tuple is three values column_name,
+comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], value. This will be logically
+connected using “AND” between each in the list and with the
+cluster_column_values</p></li>
+<li><p><strong>columns</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Specify the subset of columns to select. Default is None which is select *</p></li>
+<li><p><strong>n_records_max</strong> (<em>int</em><em>, </em><em>optional</em>) – Once this many results have been exceed, stop retrieving results and return
+what has been retrieved so far. Thus, the Table.num_rows returned may be
+greater than n_records_max. Default is 2M</p></li>
+<li><p><strong>n_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of workers in the ThreadPool to launch parallel calls to S3 Select.
+Default is 20.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pa.lib.Table</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lakeshack.html" class="btn btn-neutral float-left" title="Lakeshack" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="license.html" class="btn btn-neutral float-right" title="License" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Matthew Hendrey.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

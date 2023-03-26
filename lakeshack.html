@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lakeshack &mdash; Lakeshack 0.2.0 documentation</title><link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="lakeshack.metastore" href="modules.html" />
+    <link rel="prev" title="Lakeshack" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Lakeshack
+              <img src="_static/lakeshack_128.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Lakeshack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#partitioning-clustering-strategy">Partitioning &amp; Clustering Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#partitioning">Partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clustering">Clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#metastore">Metastore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initialize">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update">Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#query">Query</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Lakeshack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#query-s3-select">Query S3 Select</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">lakeshack.metastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html#module-lakeshack.lakeshack">lakeshack.lackshack</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Help</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Lakeshack</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Lakeshack</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/lakeshack.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="lakeshack">
+<h1>Lakeshack<a class="headerlink" href="#lakeshack" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="the-basics">
+<h2>The Basics<a class="headerlink" href="#the-basics" title="Permalink to this headline">¶</a></h2>
+<p>Let’s assume that you have Parquet files in S3 that contains sales data with columns:</p>
+<ul class="simple">
+<li><p>customer_id (int)</p></li>
+<li><p>timestamp (datetime)</p></li>
+<li><p>item_id (int)</p></li>
+<li><p>store_id (int)</p></li>
+<li><p>price (float)</p></li>
+</ul>
+<p>The data is stored in S3 with the following folder structure,</p>
+<ul class="simple">
+<li><p>sales_data/&lt;YYYY&gt;/&lt;MM&gt;/&lt;DD&gt;/</p></li>
+</ul>
+<p>Within a given folder, we have the following files:</p>
+<ul class="simple">
+<li><p>part-000000-009999.parquet.gz</p></li>
+<li><p>part-010000-019999.parquet.gz</p></li>
+<li><p>part-020000-029999.parquet.gz</p></li>
+<li><p>…</p></li>
+<li><p>part-990000-999999.parquet.gz</p></li>
+</ul>
+<p>where the first number represents the minimum customer_id in that file and the second
+number represents the maximum customer_id in that file (see Partitioning &amp; Clustering
+Strategy for more details).</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">fs</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">from</span> <span class="nn">lakeshack.metastore</span> <span class="kn">import</span> <span class="n">Metastore</span>
+<span class="kn">from</span> <span class="nn">lakeshack.lakeshack</span> <span class="kn">import</span> <span class="n">Lakeshack</span>
+
+<span class="n">s3_dir</span> <span class="o">=</span> <span class="s2">&quot;sales_data/&quot;</span>
+<span class="n">s3</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-iso-east-1&quot;</span><span class="p">)</span>
+<span class="c1"># Only need a small amount of data to specify the schema</span>
+<span class="n">s3_day</span> <span class="o">=</span> <span class="s2">&quot;sales_data/2023/03/15/&quot;</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="n">s3_day</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">)</span>
+
+<span class="c1"># Create a metastore backed by SQLite</span>
+<span class="n">metastore</span> <span class="o">=</span> <span class="n">Metastore</span><span class="p">(</span>
+    <span class="s2">&quot;sqlite:///sales.db&quot;</span><span class="p">,</span>  <span class="c1"># SQLAlchemy URL to database</span>
+    <span class="s2">&quot;sales_table&quot;</span><span class="p">,</span>         <span class="c1"># Table name in the database</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span>        <span class="c1"># pyarrow schema of the data</span>
+    <span class="s2">&quot;customer_id&quot;</span><span class="p">,</span>         <span class="c1"># Column name used for the cluster column</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span>           <span class="c1"># Optional column that can also be used to filter</span>
+<span class="p">)</span>
+<span class="c1"># Add in Parquet metadata</span>
+<span class="n">metastore</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="n">s3_dir</span><span class="p">,</span>
+    <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">,</span>
+    <span class="n">n_workers</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create lakeshack</span>
+<span class="n">lakeshack</span> <span class="o">=</span> <span class="n">Lakeshack</span><span class="p">(</span><span class="n">metastore</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">)</span>
+
+<span class="c1">## Query using native pyarrow.dataset using local machine</span>
+<span class="c1">## Results returned as a pyarrow.Table</span>
+
+<span class="c1"># Query for customer_id = 55 using native pyarrow.dataset</span>
+<span class="n">customer_id</span> <span class="o">=</span> <span class="mi">55</span>
+<span class="n">query_result</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">customer_id</span><span class="p">)</span>
+
+<span class="c1"># Query for multiple customer_ids at once</span>
+<span class="n">customers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">55</span><span class="p">,</span> <span class="mi">12345</span><span class="p">]</span>
+<span class="n">query_result</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">customers</span><span class="p">)</span>
+
+<span class="c1"># Query for customer_id, but only within a date range</span>
+<span class="c1"># and only get the customer_id, timestamp, and price columns</span>
+<span class="n">min_ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2022</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># 2022-11-15T00:00:00</span>
+<span class="n">max_ts</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>    <span class="c1"># 2023-01-01T00:00:00</span>
+<span class="n">query_result</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+    <span class="n">customers</span><span class="p">,</span>
+    <span class="n">optional_where_clauses</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">min_ts</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">max_ts</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;customer_id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1">## Query using S3 Select</span>
+<span class="n">query_result</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query_s3_select</span><span class="p">(</span>
+    <span class="n">customers</span><span class="p">,</span>
+    <span class="n">optional_where_clauses</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">min_ts</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">max_ts</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;customer_id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="partitioning-clustering-strategy">
+<h2>Partitioning &amp; Clustering Strategy<a class="headerlink" href="#partitioning-clustering-strategy" title="Permalink to this headline">¶</a></h2>
+<p>The key to optimizing the performance of either a fully featured lakehouse or this
+simple lakeshack is having a partitioning &amp; clustering strategy that matches the main
+querying pattern that will be utilized. A partitioning &amp; clustering strategy specifies
+how records should be arranged across a set of Parquet files. A partitioning &amp;
+clustering strategy has three parts which specify how:</p>
+<ol class="arabic simple">
+<li><p>Parquet files are split across a directory structure</p></li>
+<li><p>Records are split across a set of Parquet files within a single directory</p></li>
+<li><p>Records are ordered within a single Parquet file</p></li>
+</ol>
+<p>The first is the partitioning part and the second and third combined are the clustering
+part, which together form a complete partitioning &amp; clustering strategy. Unfortunately,
+people often only implement the partitioning part which leaves a lot of performance
+optimization on the table.</p>
+<div class="section" id="partitioning">
+<h3>Partitioning<a class="headerlink" href="#partitioning" title="Permalink to this headline">¶</a></h3>
+<p>A good partitioning strategy which makes the ETL process simpler is to partition based
+upon the date. This can either be the “load” date, i.e, when the data was collected or
+processed or the “record” date. To keep the ETL process simple and more efficient, once
+a directory has been written it should be immutable. This has several advantages</p>
+<ul class="simple">
+<li><p>Downstream users of the data don’t need to be informed of any changes to a directory</p></li>
+<li><p>No need to rerun the clustering piece which can be expensive computationally</p></li>
+</ul>
+<p>To illustrate this, let’s imagine the following scenario that does not make the
+partitions (aka directories) immutable. Let’s assume that we pick the record date for
+partitioning our Parquet files and that we choose to use a YYYY/mm/dd/ folder
+structure. Today is 2023-03-25 and as the data streams in, we accumulate Parquet files
+for today and at 12:15 AM on 2023-03-26 we process the just completed day.  We run a
+Spark job that implements the clustering strategy which sorts the data by the
+customer_id across all of the Parquet files for that day.</p>
+<p>But now it is 2023-03-26 and some data with a record date of 2023-03-25 comes trickling
+in.  So we need to put these few records back in the 2023/03/25/ partition, but where
+to put the new data?  If we just put them in a new file, then they don’t comport with
+the clustering strategy which will affect the performance of your queries. You could
+rerun the Spark job to redo the clustering strategy, but that is a lot of shuffling of
+the data. Besides what happens if a few more records come in tomorrow?  You’ll have to
+redo that Spark job again. In addition, if data comes trickling in, you will need to
+notify downstream consumers of the data that there are new records showing up in an old
+partition. This can be done but requires a lot of coordination with downstream users.</p>
+<p>Having immutable partitions prevents the need to reprocess and reduces coordination
+with downstream users. It should be noted, that the lakehouses typically have tools for
+handling these issues, but it increases the level of complexity for your data
+engineering team.</p>
+<p>Thus my recommondation is to partition by the load date to keep the ETL simple. If
+users still want to query based upon record date that is still possible. Hopefully the
+record date and load date are highly correlated. So even if the data comes in over a
+few load date partitions, it just means that you end up querying across a few load dates
+instead of just one.  So this does reduce the efficiency of your queries a bit, but
+greatly simplifies the ETL. That is likely a trade-off that you may be happy to make.
+If the data comes in spread over a month, then perhaps you decide that isn’t a trade-off
+you want and choose to use record date.</p>
+</div>
+<div class="section" id="clustering">
+<h3>Clustering<a class="headerlink" href="#clustering" title="Permalink to this headline">¶</a></h3>
+<p>In addition to the partitioning strategy, a clustering strategy also needs to be
+implemented. The clustering strategy specifies how the data will be ordered within a
+given partition with the goal of needing to read the least amount of data as possible
+from disk to retrieve the requested records. The column(s) that are used to cluster
+the records should align with the most common query pattern.</p>
+<p>For Parquet, the row group (just a chunk of records) is the basic unit of data that
+gets operated upon. A Parquet file may have one or more row groups. There are a few
+things to note about row groups that are important for the clustering strategy to work:</p>
+<ul class="simple">
+<li><p>The row group is the smallest chunk of data that can be read from disk by Parquet.</p></li>
+<li><p>Parquet stores metadata about each row group. In particular, the minimum and
+maximum value in the row group for each column is stored.</p></li>
+<li><p>When querying a Parquet file, the row group metadata is first checked to see if that
+particular row group needs to be read. If your query does not fall within the min/max
+for that row group, then the row group is skipped. This can lead to significant
+improvements in query performance.</p></li>
+<li><p>When using compression, Parquet compresses each column in each row group
+independently.</p></li>
+</ul>
+<p>Given these facts, the ideal clustering will put all the records for a given
+customer_id into as few row groups as possible and ideally in just one.  In addition,
+there should be no overlap between one row group’s minimum/maximum customer_id metadata
+and the next. To do this, you want to sort the records within a given partition by the
+customer_id across <strong>ALL</strong> the Parquet files in that partition.</p>
+<p>To illustrate this, let’s look at the following table:</p>
+<table class="colwidths-given docutils align-default" id="id4">
+<caption><span class="caption-text">Parquet Row Group For a Given YYYY-mm-dd Partition</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 30%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Filename</p></th>
+<th class="head"><p>Row Group</p></th>
+<th class="head"><p>Minimum customer_id</p></th>
+<th class="head"><p>Maximum customer_id</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>0.parquet</p></td>
+<td><p>0</p></td>
+<td><p>000</p></td>
+<td><p>012</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>1</p></td>
+<td><p>012</p></td>
+<td><p>024</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>2</p></td>
+<td><p>024</p></td>
+<td><p>036</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>3</p></td>
+<td><p>036</p></td>
+<td><p>048</p></td>
+</tr>
+<tr class="row-even"><td><p>1.parquet</p></td>
+<td><p>0</p></td>
+<td><p>049</p></td>
+<td><p>060</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>1</p></td>
+<td><p>060</p></td>
+<td><p>072</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>2</p></td>
+<td><p>072</p></td>
+<td><p>084</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>3</p></td>
+<td><p>084</p></td>
+<td><p>096</p></td>
+</tr>
+<tr class="row-even"><td><p>2.parquet</p></td>
+<td><p>0</p></td>
+<td><p>097</p></td>
+<td><p>108</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>1</p></td>
+<td><p>108</p></td>
+<td><p>120</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>2</p></td>
+<td><p>120</p></td>
+<td><p>132</p></td>
+</tr>
+</tbody>
+</table>
+<p>Notice that we have no overlap between the Parquet files and that only the end points
+overlap between the row groups. Given this, if we want to query for the records for
+customer_id = 008, then only we only need to read filename=0.parquet, row_group=0
+from disk. If we happen to need customer_id = 084, then we need to read
+filename=1.parquet, row_group=2 &amp; row_group=3. With this strategy, each partition will
+have just one file that <strong>might</strong> have your records.</p>
+<p>In Spark, this can be easily achieved with the following snippet of code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="s2">&quot;sales_data/2023/03/15/&quot;</span><span class="p">)</span>
+
+<span class="c1"># Orders the data by customer_id and splits cleanly into n_files such that a given</span>
+<span class="c1"># customer_id appears in just one file. But does not order **within** a given file</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">repartitionByRange</span><span class="p">(</span><span class="n">n_files</span><span class="p">,</span> <span class="s2">&quot;customer_id&quot;</span><span class="p">)</span>
+
+<span class="c1"># To sort within a file</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sortWithinPartitions</span><span class="p">(</span><span class="s2">&quot;customer_id&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>By doing this we also can get a bonus effect. Because we have sorted the records by the
+customer_id column, then we will get really good compression in that column by the fact
+that the data is sorted within a given row group. Now, if the column used in the
+clustering strategy is also highly correlated with the other columns, then those columns
+will also get much better compression.  With better compression, that means fewer bytes
+need to be read from disk when retrieving any given row group.</p>
+</div>
+</div>
+<div class="section" id="metastore">
+<h2>Metastore<a class="headerlink" href="#metastore" title="Permalink to this headline">¶</a></h2>
+<p>A good partitioning &amp; clustering strategy can go a long way to speeding up querying
+data from Parquet files. This will help if you use something like Spark or Trino as
+a compute engine since both will take advantage of the Parquet metadata information to
+skip processing unneeded row groups.  However, for large data sets with lots of files
+and even more row groups, you will find that the vast majority of your querying time is
+spent reading the Parquet metadata. So this is the genesis for gathering up the
+Parquet metadata and storing it centrally; either in a database or at least in a
+separate Parquet file. With the centralized metadata, a query will first check the
+metadata to determine which subset of Parquet files may have the requested files and
+only execute the query against this subset of files.</p>
+<p>For Lakeshack, the Metastore class is used to specify the database and to add the
+appropriate metadata to the database. The Metastore class utilizes SQLAlchemy in order
+to provide greater flexibility on the backend database that may be used.</p>
+<div class="section" id="initialize">
+<h3>Initialize<a class="headerlink" href="#initialize" title="Permalink to this headline">¶</a></h3>
+<p>To initialize a Metastore, you provide the SQLAlchemy URL that will be used to
+establish a connection to the backend database and create the specified table. For this
+example, let’s create use SQLite as the backend database.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lakeshack.metastore</span> <span class="kn">import</span> <span class="n">Metastore</span>
+<span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">fs</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
+
+<span class="n">s3</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">(</span><span class="n">region</span><span class="o">=</span><span class="s2">&quot;us-iso-east-1&quot;</span><span class="p">)</span>
+<span class="n">s3_dir</span> <span class="o">=</span> <span class="s2">&quot;sales_data/2023/&quot;</span>
+<span class="c1"># We only need to get the pyarrow schema, so let&#39;s use a small bit of data</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{s3_dir}</span><span class="s2">03/15/&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="n">s3</span><span class="p">)</span>
+
+<span class="n">metastore</span> <span class="o">=</span> <span class="n">Metastore</span><span class="p">(</span>
+    <span class="s2">&quot;sqlite:///sales.db&quot;</span><span class="p">,</span>   <span class="c1"># Use file sales.db to store data</span>
+    <span class="s2">&quot;sales&quot;</span><span class="p">,</span>                <span class="c1"># Table name in sales.db</span>
+    <span class="n">dataset</span><span class="o">.</span><span class="n">schema</span><span class="p">,</span>         <span class="c1"># pyarrow schema</span>
+    <span class="s2">&quot;customer_id&quot;</span><span class="p">,</span>          <span class="c1"># Column that was used to cluster the data</span>
+    <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span>            <span class="c1"># Optional column whose metadata we want in Metastore</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Metastore will create the table and map the Parquet’s pyarrow schema to database types.
+This will create the “sales” table in the “sales.db” SQLite database. In this example,
+the customer_id was used to cluster the data within a partition. You need to specify
+this column and this column must be used whenever you want to query the data. We also
+passed in the “timestamp” field as an optional column. This tells Metastore to also
+gather up the min/max values for this column and store them into the Metastore. This
+allows you to optionally filter the data using this field.</p>
+<p>The structure of the “sales” table looks like the following with “filepath” always
+being the column that gives you the location of the file:</p>
+<table class="colwidths-given docutils align-default" id="id5">
+<caption><span class="caption-text">sales table</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>filepath</p></td>
+<td><p>customer_id_min</p></td>
+<td><p>customer_id_max</p></td>
+<td><p>timestamp_min</p></td>
+<td><p>timestamp_max</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="update">
+<h3>Update<a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h3>
+<p>To add Parquet file metadata to the Metastore database, simply call the <code class="code docutils literal notranslate"><span class="pre">update()</span></code>
+which will use a thread pool of workers to get the min/max values for the specified
+column(s) (customer_id &amp; timestamp in this example) for each Parquet file. Notice that
+the min/max values are gathered at the Parquet file level and not for each row group.
+This minimizes the number of rows in the Metastore database to just one entry for
+each file.  Besides, the querying engines will check the row group information when
+the query gets executed so no need to do that explicitly. In the code below, all the
+data for 2023 will be added to the Metastore.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">metastore</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="n">s3_dir</span><span class="p">,</span>            <span class="c1"># Recursively add data from this directory</span>
+    <span class="n">filesystem</span> <span class="o">=</span> <span class="n">s3</span><span class="p">,</span>   <span class="c1"># File system holding the files</span>
+    <span class="n">n_workers</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>    <span class="c1"># Size of the thread pool to use</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="query">
+<h3>Query<a class="headerlink" href="#query" title="Permalink to this headline">¶</a></h3>
+<p>Finally, if you want to see what files <strong>might</strong> contain your requested data you
+simply use the <code class="code docutils literal notranslate"><span class="pre">query()</span></code> function. There is little need for you to call this
+method explicitly (it gets called by <code class="code docutils literal notranslate"><span class="pre">Lakeshack</span></code>) when needed, but it may be
+useful to check how good your clustering performed. The method returns a dictionary
+whose keys are the filepaths and whose values are which customer_id values might have
+records in that file based upon the specified query. The example below is looking for
+records for customer_id 0, 1, and 55123 that occurred on the first day of January 2023.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="n">filepath_dict</span> <span class="o">=</span> <span class="n">metastore</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+    <span class="n">cluster_column_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">55123</span><span class="p">],</span>
+    <span class="n">optional_where_clauses</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span> <span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">filepath_dict</span><span class="p">)</span>
+<span class="c1"># {</span>
+<span class="c1">#   &quot;sales_data/2023/01/01/part-000000-009999.gz.parquet&quot;: [0, 1],</span>
+<span class="c1">#   &quot;sales_data/2023/01/01/part-055000-059999.gz.parquet&quot;: [55123],</span>
+<span class="c1"># }</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Lakeshack<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>With a <code class="code docutils literal notranslate"><span class="pre">Metastore</span></code> instantiated and metadata data added to it, we are ready to
+instantiate a <code class="code docutils literal notranslate"><span class="pre">Lakeshack</span></code> to be able to retrieve records from the Parquet files.</p>
+<div class="section" id="id2">
+<h3>Initialize<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>We initialize a <code class="code docutils literal notranslate"><span class="pre">Lakeshack</span></code> by giving it the corresponding <code class="code docutils literal notranslate"><span class="pre">Metastore</span></code> and
+the filesystem where the Parquet files are located.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">lakeshack.lakeshack</span> <span class="kn">import</span> <span class="n">Lakeshack</span>
+
+<span class="n">lakeshack</span> <span class="o">=</span> <span class="n">Lakeshack</span><span class="p">(</span><span class="n">metastore</span><span class="p">,</span> <span class="n">s3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>Query<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="code docutils literal notranslate"><span class="pre">query()</span></code> will use pyarrow.dataset to query the underlying Parquet files.
+Again this will be begin by querying the <code class="code docutils literal notranslate"><span class="pre">Metastore</span></code> to determine which Parquet
+files <strong>might</strong> have the requested data. In the example that we have been working, we
+should expect that for a given customer_id there will be one file in each of the
+YYYY/mm/dd partitions.  This list of Parquet files will be used to instantiate a
+pyarrow.dataset. This dataset will then process the data in batches until either all
+the data has been returned or <code class="code docutils literal notranslate"><span class="pre">n_records_max</span></code> has been reached. The results
+are returned as a pyarrow Table.</p>
+<p>To further restrict the records that come back, you may pass in optional “where”
+clauses that take advantage of any optional columns us put into the <code class="code docutils literal notranslate"><span class="pre">Metastore</span></code>.
+In this example, we will further restric the query by giving a “timestamp” range
+that we want. In addition, since we are only interested in the price information,
+let’s pull back just the columns used to filter (customer_id &amp; timestamp) and the price
+column. It is always best practice to pull the least amount of data as needed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Query for customer_id = 55 during January 2023 and only interested in the</span>
+<span class="c1"># pricing information</span>
+<span class="n">pa_table</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+    <span class="mi">55</span><span class="p">,</span>
+    <span class="n">optional_where_clauses</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span> <span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">],</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;customer_id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="c1"># Now we can calculate some statistics for this customer</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pa_table</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">price</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">df</span><span class="o">.</span><span class="n">price</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="query-s3-select">
+<h3>Query S3 Select<a class="headerlink" href="#query-s3-select" title="Permalink to this headline">¶</a></h3>
+<p>We can do the exact same query, but this time instead of using the local machine to
+do the query, let’s utilize S3 Select to do the work for you. S3 Select, like all of
+the other Spark, Trino, lakehouses, etc., takes advantage of the Parquet metadata to
+only retrieve the needed row groups. However, S3 Select only operates on a single
+Parquet file at a time, but this isn’t a problem for us!  We have already figured out
+exactly which Parquet files we need to query thanks to the <code class="code docutils literal notranslate"><span class="pre">Metastore</span></code>.</p>
+<p>Because S3 is doing the compute for you, we can use a thread pool to launch multiple
+S3 Select queries in parallel which will speed things. This means that we can query
+a huge amount of data without using <strong>ANY</strong> Spark/Trino cluster!</p>
+<p><strong>NOTE</strong> when using S3 Select, you pay per bytes scanned.  However, since we have
+clustered our data, this means that we should be reading just <span class="math notranslate nohighlight">\(1 + \epsilon\)</span>
+row groups on average per partition per customer_id.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pa_table</span> <span class="o">=</span> <span class="n">lakeshack</span><span class="o">.</span><span class="n">query_s3_select</span><span class="p">(</span>
+    <span class="mi">55</span><span class="p">,</span>
+    <span class="n">optional_where_clauses</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span> <span class="p">,</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">],</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;customer_id&quot;</span><span class="p">,</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Lakeshack" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="lakeshack.metastore" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Matthew Hendrey.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

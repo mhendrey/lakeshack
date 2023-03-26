@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lakeshack.lakeshack &mdash; Lakeshack 0.2.0 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lakeshack
+              <img src="../../_static/lakeshack_128.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lakeshack.html">Lakeshack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#partitioning-clustering-strategy">Partitioning &amp; Clustering Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#partitioning">Partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#clustering">Clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#metastore">Metastore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#initialize">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#update">Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#query">Query</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#id1">Lakeshack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#id2">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#id3">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#query-s3-select">Query S3 Select</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">lakeshack.metastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#module-lakeshack.lakeshack">lakeshack.lackshack</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../help.html">Help</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lakeshack</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lakeshack.lakeshack</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lakeshack.lakeshack</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright (C) 2022 Matthew Hendrey</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">from</span> <span class="nn">botocore.exceptions</span> <span class="kn">import</span> <span class="n">ClientError</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">as_completed</span><span class="p">,</span> <span class="n">ThreadPoolExecutor</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging.config</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">fs</span>
+<span class="kn">import</span> <span class="nn">pyarrow.compute</span> <span class="k">as</span> <span class="nn">pc</span>
+<span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">lakeshack.metastore</span> <span class="kn">import</span> <span class="n">Metastore</span>
+
+
+<div class="viewcode-block" id="Lakeshack"><a class="viewcode-back" href="../../modules.html#lakeshack.lakeshack.Lakeshack">[docs]</a><span class="k">class</span> <span class="nc">Lakeshack</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Retrieve records stored in Parquet files by first checking the Metastore to</span>
+<span class="sd">    determine which Parquet files **might** have the requested records and then only</span>
+<span class="sd">    querying these files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    metastore : Metastore</span>
+<span class="sd">        Metastore containing the parquet file metadata that lakeshack will use</span>
+<span class="sd">    filesystem : fs.FileSystem, optional</span>
+<span class="sd">        pyarrow file system. Use fs.S3FileSystem(region=&#39;your_region&#39;) for</span>
+<span class="sd">        connecting to S3. Default is fs.LocalSystem()</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    s3_table : sa.sql.schema.Table</span>
+<span class="sd">        Empty SQLAlchemy table used to make it easier to construct the SQL expression</span>
+<span class="sd">        that gets passed to S3 Select.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        from lakeshack.lakeshack import Lakeshack</span>
+<span class="sd">        from lakeshack.metastore import Metastore</span>
+<span class="sd">        from pyarrow import fs</span>
+<span class="sd">        import pyarrow.dataset as ds</span>
+
+<span class="sd">        s3 = fs.S3FileSystem(region=&quot;us-iso-east-1&quot;)</span>
+<span class="sd">        s3_dir = &quot;sales_data/2023/03/15/&quot;</span>
+<span class="sd">        dataset = ds.dataset(s3_dir, filesystem=s3, format=&quot;parquet&quot;)</span>
+
+<span class="sd">        # Connect to an existing metastore</span>
+<span class="sd">        metastore = Metastore(&quot;sqlite:///sales.db&quot;, &quot;sales_table&quot;, dataset.schema)</span>
+<span class="sd">        lakeshake = Lakeshack(metastore, s3)</span>
+
+<span class="sd">        pa_table = lakeshack.query(55)</span>
+<span class="sd">        # Use S3 Select using a thread pool with 50 workers</span>
+<span class="sd">        pa_s3_table = lakeshack.query_s3_select(</span>
+<span class="sd">            55,</span>
+<span class="sd">            n_workers = 50,</span>
+<span class="sd">        )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">metastore</span><span class="p">:</span> <span class="n">Metastore</span><span class="p">,</span> <span class="n">filesystem</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">FileSystem</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">LocalFileSystem</span><span class="p">()</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate a Lakeshack that will use the metastore &amp; filesystem to speed</span>
+<span class="sd">        up retrieval of records from the parquet files stored in the filesystem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span> <span class="o">=</span> <span class="n">metastore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filesystem</span> <span class="o">=</span> <span class="n">filesystem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col_arrow</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">arrow_schema</span><span class="p">:</span>
+            <span class="n">col_name</span> <span class="o">=</span> <span class="n">col_arrow</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">db_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span><span class="n">col_arrow</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="n">col_name</span><span class="p">,</span> <span class="n">db_type</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s3_table</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="s2">&quot;s3object&quot;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(),</span> <span class="o">*</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_construct_sql_statement</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cluster_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+        <span class="n">optional_where_clauses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a sql statement that can be given to s3&#39;s select_object_content().</span>
+<span class="sd">        When doing column projections with Parquet as the InputSerialization, I&#39;ve</span>
+<span class="sd">        found that you need to have the column names in double quotes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cluster_values : List[Any]</span>
+<span class="sd">            List of cluster values that you want included in the WHERE clause as</span>
+<span class="sd">            `cluster_column in (cv0, cv1, cv2)`</span>
+<span class="sd">        optional_where_clauses : List[Tuple[str, str, Any]], optional</span>
+<span class="sd">            List of optional columns to further restrict the parquet files to be</span>
+<span class="sd">            queried. Each tuple is three values column_name,</span>
+<span class="sd">            comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], value. This will be logically</span>
+<span class="sd">            connected using &quot;AND&quot; between each in the list and with the</span>
+<span class="sd">            cluster_column_values. Default is []</span>
+<span class="sd">        columns : List[str]</span>
+<span class="sd">            Specify the subset of columns to select. Default is None which is select *</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        sql_statement : str</span>
+<span class="sd">            SQL statement to pass to s3.select_object_content()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="n">proj_cols</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="n">proj_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s3_table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">proj_cols</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s3_table</span><span class="p">)</span>
+        <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s3_table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">cluster_column</span><span class="p">]</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">cluster_values</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Handle optional where clauses</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">optional_where_clauses</span><span class="p">:</span>
+            <span class="n">table_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3_table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+            <span class="c1"># Handle datetime and date the same for s3.select</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">table_col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span>
+            <span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">TO_TIMESTAMP</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table_col</span> <span class="o">&gt;=</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">:</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table_col</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;=&quot;</span> <span class="ow">or</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;==&quot;</span><span class="p">:</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table_col</span> <span class="o">==</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">:</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table_col</span> <span class="o">&lt;</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">:</span>
+                <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">table_col</span> <span class="o">&lt;=</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;_construct_sql_statement() optional_where_clause </span><span class="si">{op}</span><span class="s2"> is not &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;a valid comparision&quot;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{op}</span><span class="s2"> is not a valid comparision&quot;</span><span class="p">)</span>
+
+        <span class="n">sql_statement</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stmt</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">compile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;literal_binds&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}))</span>
+
+        <span class="k">return</span> <span class="n">sql_statement</span>
+
+    <span class="k">def</span> <span class="nf">_select_worker</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">cluster_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+        <span class="n">optional_where_clauses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use s3.select to retrieved records matching the cluster values and any</span>
+<span class="sd">        optional where clauses from the given filepath in S3.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath : str</span>
+<span class="sd">            S3 filepath to run the query against</span>
+<span class="sd">        cluster_values : List[Any]</span>
+<span class="sd">            List of cluster values that you want included in the WHERE clause as</span>
+<span class="sd">            `cluster_column in (cv0, cv1, cv2)`</span>
+<span class="sd">        optional_where_clauses : List[Tuple[str, str, Any]], optional</span>
+<span class="sd">            List of optional columns to further restrict the parquet files to be</span>
+<span class="sd">            queried. Each tuple is three values column_name,</span>
+<span class="sd">            comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], value. This will be logically</span>
+<span class="sd">            connected using &quot;AND&quot; between each in the list and with the</span>
+<span class="sd">            cluster_column_values. Default is []</span>
+<span class="sd">        columns : List[str], optional</span>
+<span class="sd">            Specify the subset of columns to select. Default is None which is select *</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            Dictionary containing &#39;data&#39;, &#39;BytesScanned&#39;, &#39;BytesProcessed&#39;, and</span>
+<span class="sd">            &#39;BytesReturned&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">s3_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span><span class="o">.</span><span class="n">client</span><span class="p">(</span>
+            <span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filesystem</span><span class="o">.</span><span class="n">region</span>
+        <span class="p">)</span>
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="n">sql_statement</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_construct_sql_statement</span><span class="p">(</span>
+            <span class="n">cluster_values</span><span class="p">,</span> <span class="n">optional_where_clauses</span><span class="p">,</span> <span class="n">columns</span>
+        <span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">s3_client</span><span class="o">.</span><span class="n">select_object_content</span><span class="p">(</span>
+                <span class="n">Bucket</span><span class="o">=</span><span class="n">bucket</span><span class="p">,</span>
+                <span class="n">Key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+                <span class="n">Expression</span><span class="o">=</span><span class="n">sql_statement</span><span class="p">,</span>
+                <span class="n">ExpressionType</span><span class="o">=</span><span class="s2">&quot;SQL&quot;</span><span class="p">,</span>
+                <span class="n">InputSerialization</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Parquet&quot;</span><span class="p">:</span> <span class="p">{}},</span>
+                <span class="n">OutputSerialization</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;JSON&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;RecordDelimiter&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">}},</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">ClientError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_select_worker() </span><span class="si">{filepath}</span><span class="s2"> threw: </span><span class="si">{exc}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;BytesScanned&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;BytesProcessed&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;BytesReturned&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">bytes_scanned</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">bytes_processed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">bytes_returned</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;Payload&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;Records&quot;</span> <span class="ow">in</span> <span class="n">event</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;Records&quot;</span><span class="p">][</span><span class="s2">&quot;Payload&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s2">&quot;Stats&quot;</span> <span class="ow">in</span> <span class="n">event</span><span class="p">:</span>
+                <span class="n">statsDetails</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;Stats&quot;</span><span class="p">][</span><span class="s2">&quot;Details&quot;</span><span class="p">]</span>
+                <span class="n">bytes_scanned</span> <span class="o">+=</span> <span class="n">statsDetails</span><span class="p">[</span><span class="s2">&quot;BytesScanned&quot;</span><span class="p">]</span>
+                <span class="n">bytes_processed</span> <span class="o">+=</span> <span class="n">statsDetails</span><span class="p">[</span><span class="s2">&quot;BytesProcessed&quot;</span><span class="p">]</span>
+                <span class="n">bytes_returned</span> <span class="o">+=</span> <span class="n">statsDetails</span><span class="p">[</span><span class="s2">&quot;BytesReturned&quot;</span><span class="p">]</span>
+
+        <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">record</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;_select_worker() Failed to json load </span><span class="si">{s}</span><span class="s2">: </span><span class="si">{exc}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;_select_worker() </span><span class="si">{filepath}</span><span class="s2"> took {end-start} for {len(records)} &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;scanned={bytes_scanned/1024**2:.0f}MB, &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;processed={bytes_processed/1024**2:.0f}MB &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;returned={bytes_returned/1024:.0f}KB&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">records</span><span class="p">,</span>
+            <span class="s2">&quot;BytesScanned&quot;</span><span class="p">:</span> <span class="n">bytes_scanned</span><span class="p">,</span>
+            <span class="s2">&quot;BytesProcessed&quot;</span><span class="p">:</span> <span class="n">bytes_processed</span><span class="p">,</span>
+            <span class="s2">&quot;BytesReturned&quot;</span><span class="p">:</span> <span class="n">bytes_returned</span><span class="p">,</span>
+        <span class="p">}</span>
+
+<div class="viewcode-block" id="Lakeshack.query_s3_select"><a class="viewcode-back" href="../../modules.html#lakeshack.lakeshack.Lakeshack.query_s3_select">[docs]</a>    <span class="k">def</span> <span class="nf">query_s3_select</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cluster_column_values</span><span class="p">,</span>
+        <span class="n">optional_where_clauses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">n_records_max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000000</span><span class="p">,</span>
+        <span class="n">n_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve records from the parquet files stored in S3 using S3 Select using a</span>
+<span class="sd">        threadpool to speed up the queries.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cluster_column_values : str, List[str]</span>
+<span class="sd">            Provide a single cluster column value or a list of them whose</span>
+<span class="sd">            records you want to retrieve</span>
+<span class="sd">        optional_where_clauses : List[Tuple], optional</span>
+<span class="sd">            List of optional columns to further restrict the parquet files to be</span>
+<span class="sd">            queried. Each tuple is three values column_name,</span>
+<span class="sd">            comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], value. This will be logically</span>
+<span class="sd">            connected using &quot;AND&quot; between each in the list and with the</span>
+<span class="sd">            cluster_column_values</span>
+<span class="sd">        columns : List[str]</span>
+<span class="sd">            Specify the subset of columns to select. Default is None which is select *</span>
+<span class="sd">        n_records_max : int, optional</span>
+<span class="sd">            Once this many results have been exceed, stop retrieving results and return</span>
+<span class="sd">            what has been retrieved so far. Thus, the Table.num_rows returned may be</span>
+<span class="sd">            greater than n_records_max. Default is 2M</span>
+<span class="sd">        n_workers : int, optional</span>
+<span class="sd">            Number of workers in the ThreadPool to launch parallel calls to S3 Select.</span>
+<span class="sd">            Default is 20.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pa.lib.Table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filesystem</span><span class="p">,</span> <span class="n">fs</span><span class="o">.</span><span class="n">S3FileSystem</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;filesystem must be S3. You have </span><span class="si">{self.filesystem}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cluster_column_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">cluster_column_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">cluster_column_values</span><span class="p">]</span>
+
+        <span class="c1"># optional_where_clauses = self._cast_to_pyarrow_schema(optional_where_clauses)</span>
+        <span class="n">filepaths_to_cluster_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">cluster_column_values</span><span class="p">,</span> <span class="n">optional_where_clauses</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">names</span>
+        <span class="n">query_fields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">query_fields_safe</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+            <span class="n">pa_field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="n">query_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pa_field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_timestamp</span><span class="p">(</span><span class="n">pa_field</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_date</span><span class="p">(</span><span class="n">pa_field</span><span class="o">.</span><span class="n">type</span><span class="p">):</span>
+                <span class="n">pa_field</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">string</span><span class="p">())</span>
+            <span class="n">query_fields_safe</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pa_field</span><span class="p">)</span>
+        <span class="n">query_schema_safe</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">query_fields_safe</span><span class="p">)</span>
+        <span class="n">query_schema</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">query_fields</span><span class="p">)</span>
+
+        <span class="n">batches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">n_records</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">bytes_scanned</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">bytes_processed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">bytes_returned</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">n_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+            <span class="n">future_to_file</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">cluster_values</span> <span class="ow">in</span> <span class="n">filepaths_to_cluster_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_select_worker</span><span class="p">,</span>
+                    <span class="n">filepath</span><span class="p">,</span>
+                    <span class="n">cluster_values</span><span class="p">,</span>
+                    <span class="n">optional_where_clauses</span><span class="p">,</span>
+                    <span class="n">columns</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">future_to_file</span><span class="p">[</span><span class="n">future</span><span class="p">]</span> <span class="o">=</span> <span class="n">filepath</span>
+
+            <span class="n">check</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_file</span><span class="p">):</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">future_to_file</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;query_s3_select() </span><span class="si">{filepath}</span><span class="s2"> threw: </span><span class="si">{exc}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]:</span>
+                        <span class="n">n_records</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+                        <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">pa</span><span class="o">.</span><span class="n">RecordBatch</span><span class="o">.</span><span class="n">from_pylist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">query_schema_safe</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="n">bytes_scanned</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;BytesScanned&quot;</span><span class="p">]</span>
+                    <span class="n">bytes_processed</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;BytesProcessed&quot;</span><span class="p">]</span>
+                    <span class="n">bytes_returned</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;BytesReturned&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">n_records</span> <span class="o">&gt;</span> <span class="n">n_records_max</span><span class="p">:</span>
+                        <span class="n">check</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+
+            <span class="k">while</span> <span class="n">check</span><span class="p">:</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">future_to_file</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">future</span><span class="o">.</span><span class="n">done</span><span class="p">():</span>
+                        <span class="n">future</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+                        <span class="n">check</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">query_schema_safe</span><span class="p">)</span>
+
+        <span class="c1"># Ideally we should be able to use pyarrow to cast back the timestamp and/or</span>
+        <span class="c1"># date fields from the strings returned by S3.  But pyarrow currently doesn&#39;t</span>
+        <span class="c1"># seem to have full support.</span>
+
+        <span class="c1"># For example: https://issues.apache.org/jira/browse/ARROW-12539</span>
+        <span class="c1"># shows that casting a date string to pa.date32() throws an error.</span>
+        <span class="c1"># $ pa.array([&quot;2022-01-02&quot;], pa.string()).cast(pa.date32())</span>
+        <span class="c1">#   ArrowNotImplementedError: Unsupported cast from string to date32...</span>
+        <span class="c1"># But</span>
+        <span class="c1"># $ pa.array([&quot;2022-01-02&quot;], pa.string()).cast(pa.timestamp(&quot;s&quot;))</span>
+        <span class="c1">#   [2022-01-02 00:00:00]</span>
+
+        <span class="c1"># For timestamps</span>
+        <span class="c1"># $ pa.array([&quot;2022-01-02T12:34:56.78&quot;],pa.string()).cast(pa.timestamp(&quot;us&quot;))</span>
+        <span class="c1">#   [2022-01-02 12:34:56.780000]</span>
+        <span class="c1"># But</span>
+        <span class="c1"># $ pa.array([&quot;2022-01-02T12:34:56.78Z&quot;],pa.string()).cast(pa.timestamp(&quot;us&quot;))</span>
+        <span class="c1">#   ArrowInvalid: Failed to parse string....expected no zone offset</span>
+        <span class="c1"># Yet</span>
+        <span class="c1"># $ pa.array([&quot;2022-01-02T12:34:56.78Z&quot;], pa.string()).cast(pa.timestamp(&quot;us&quot;, &quot;Z&quot;))</span>
+        <span class="c1">#   [2022-01-02 12:34:56.780000]</span>
+
+        <span class="c1"># Unfortunately, s3 select returns timestamps as 2022-01-02T12:34:56.78Z</span>
+        <span class="c1"># and that &quot;Z&quot; causes the ArrowInvalid error.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">query_schema</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;query_s3_select() pyarrow fixed their date/timestamp casting&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">pa_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">query_schema</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">query_schema</span><span class="o">.</span><span class="n">types</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_timestamp</span><span class="p">(</span><span class="n">pa_type</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_date</span><span class="p">(</span><span class="n">pa_type</span><span class="p">):</span>
+                    <span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{column}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{column}</span><span class="s2">&quot;</span><span class="p">])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
+                    <span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">query_schema</span><span class="p">,</span> <span class="n">preserve_index</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;query_s3_select() Failed to cast back to original schema:&quot;</span>
+                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{exc}</span><span class="s2">. Leaving date/timestamp as strings.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">n_queries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_column_values</span><span class="p">)</span>
+        <span class="n">n_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filepaths_to_cluster_values</span><span class="p">)</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;query_s3_select() FINISHED &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{n_queries=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{n_files=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{n_records=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{elapsed_time=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{bytes_scanned=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{bytes_processed=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{bytes_returned=:}&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="Lakeshack.query"><a class="viewcode-back" href="../../modules.html#lakeshack.lakeshack.Lakeshack.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cluster_column_values</span><span class="p">,</span>
+        <span class="n">optional_where_clauses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">131_072</span><span class="p">,</span>
+        <span class="n">n_records_max</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2_000_000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve records from the parquet files using pyarrow&#39;s</span>
+<span class="sd">        isin(cluster_column_values) in batches of batch_size. Stop returning results</span>
+<span class="sd">        if n_records_max have already been returned.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cluster_column_values : Union[str, List]</span>
+<span class="sd">            cluster_column value you want to match on. Provide one or a list of many</span>
+<span class="sd">        optional_where_clauses : List[Tuple], optional</span>
+<span class="sd">            List of optional columns to further restrict the parquet files to be</span>
+<span class="sd">            queried. Each tuple is three values column_name,</span>
+<span class="sd">            comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], value. This will be logically</span>
+<span class="sd">            connected using &quot;AND&quot; between each in the list and with the</span>
+<span class="sd">            cluster_column_values</span>
+<span class="sd">        columns : List[str], optional</span>
+<span class="sd">            The columns to return from parquet files. Default is None (all of them)</span>
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            Retrieve batches of this size from the dataset. Lower this value to manage</span>
+<span class="sd">            RAM if needed. Default is 128 * 1024, same as pyarrow.Dataset.to_batches()</span>
+<span class="sd">        n_records_max : int, optional</span>
+<span class="sd">            Once this many results have been exceed, stop retrieving results and return</span>
+<span class="sd">            what has been retrieved so far. Thus, the Table.num_rows returned will be</span>
+<span class="sd">            less than or equal to n_records_max + batch_size.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pa.lib.Table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cluster_column_values</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">cluster_column_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">cluster_column_values</span><span class="p">]</span>
+
+        <span class="n">batch_fields</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="n">batch_fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_name</span><span class="p">))</span>
+            <span class="n">batch_schema</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">batch_fields</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">batch_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">arrow_schema</span>
+
+        <span class="n">filepaths_to_cluster_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+            <span class="n">cluster_column_values</span><span class="p">,</span> <span class="n">optional_where_clauses</span>
+        <span class="p">)</span>
+        <span class="n">filepaths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">filepaths_to_cluster_values</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Construct the cluster_column values filter</span>
+        <span class="n">ds_filter</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metastore</span><span class="o">.</span><span class="n">cluster_column</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cluster_column_values</span><span class="p">)</span>
+
+        <span class="c1"># Add in the optional_where_clauses</span>
+        <span class="k">for</span> <span class="n">col_name</span><span class="p">,</span> <span class="n">compare_op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">optional_where_clauses</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">compare_op</span> <span class="o">==</span> <span class="s2">&quot;==&quot;</span> <span class="ow">or</span> <span class="n">compare_op</span> <span class="o">==</span> <span class="s2">&quot;=&quot;</span><span class="p">:</span>
+                <span class="n">op_filter</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">compare_op</span> <span class="o">==</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">:</span>
+                <span class="n">op_filter</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">compare_op</span> <span class="o">==</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">:</span>
+                <span class="n">op_filter</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">compare_op</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">:</span>
+                <span class="n">op_filter</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">compare_op</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
+                <span class="n">op_filter</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col_name</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">value</span>
+            <span class="n">ds_filter</span> <span class="o">=</span> <span class="n">ds_filter</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">op_filter</span><span class="p">)</span>
+
+        <span class="n">n_records</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">batches</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">filepaths</span><span class="p">:</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dataset</span><span class="p">(</span>
+                <span class="n">filepaths</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;parquet&quot;</span><span class="p">,</span> <span class="n">filesystem</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">filesystem</span>
+            <span class="p">)</span>
+            <span class="n">record_batches</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">to_batches</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+                <span class="nb">filter</span><span class="o">=</span><span class="n">ds_filter</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">record_batch</span> <span class="ow">in</span> <span class="n">record_batches</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">record_batch</span><span class="o">.</span><span class="n">num_rows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">n_records</span> <span class="o">+=</span> <span class="n">record_batch</span><span class="o">.</span><span class="n">num_rows</span>
+                    <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record_batch</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">n_records</span> <span class="o">&gt;</span> <span class="n">n_records_max</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+        <span class="n">n_queries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_column_values</span><span class="p">)</span>
+        <span class="n">n_files</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filepaths_to_cluster_values</span><span class="p">)</span>
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;query() FINISHED &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{n_queries=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{n_files=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{n_records=:},&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;{elapsed_time=:}&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_batches</span><span class="p">(</span><span class="n">batches</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">batch_schema</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Matthew Hendrey.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

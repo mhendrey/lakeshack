@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lakeshack.metastore &mdash; Lakeshack 0.2.0 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lakeshack
+              <img src="../../_static/lakeshack_128.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption"><span class="caption-text">Usage</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../lakeshack.html">Lakeshack</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#the-basics">The Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#partitioning-clustering-strategy">Partitioning &amp; Clustering Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#partitioning">Partitioning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#clustering">Clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#metastore">Metastore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#initialize">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#update">Update</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#query">Query</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../lakeshack.html#id1">Lakeshack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#id2">Initialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#id3">Query</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lakeshack.html#query-s3-select">Query S3 Select</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">lakeshack.metastore</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html#module-lakeshack.lakeshack">lakeshack.lackshack</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Admin</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#license-requirements">License Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#license-notices">License notices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../license.html#copyright">Copyright</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../help.html">Help</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lakeshack</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">lakeshack.metastore</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for lakeshack.metastore</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Copyright (C) 2022 Matthew Hendrey</span>
+
+<span class="sd">This program is free software: you can redistribute it and/or modify</span>
+<span class="sd">it under the terms of the GNU General Public License as published by</span>
+<span class="sd">the Free Software Foundation, either version 3 of the License, or</span>
+<span class="sd">(at your option) any later version.</span>
+
+<span class="sd">This program is distributed in the hope that it will be useful,</span>
+<span class="sd">but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="sd">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="sd">GNU General Public License for more details.</span>
+<span class="sd">You should have received a copy of the GNU General Public License</span>
+<span class="sd">along with this program.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">logging.config</span>
+<span class="kn">import</span> <span class="nn">pyarrow</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">from</span> <span class="nn">pyarrow</span> <span class="kn">import</span> <span class="n">fs</span>
+<span class="kn">import</span> <span class="nn">pyarrow.parquet</span> <span class="k">as</span> <span class="nn">pq</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
+
+
+<div class="viewcode-block" id="Metastore"><a class="viewcode-back" href="../../modules.html#lakeshack.metastore.Metastore">[docs]</a><span class="k">class</span> <span class="nc">Metastore</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Store metadata from parquet files into a database using SQLAlchmey</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    store_url : str</span>
+<span class="sd">        URL string to backend database. See sqlalchemy.create_engine() for more</span>
+<span class="sd">        details and examples.</span>
+<span class="sd">    store_table : str</span>
+<span class="sd">        Name of the table storing the parquet metadata</span>
+<span class="sd">    arrow_schema : pa.lib.Schema</span>
+<span class="sd">        Arrow schema of the parquet files</span>
+<span class="sd">    cluster_column : str, optional</span>
+<span class="sd">        Name of the column in the Arrow schema used for clustering the data. If</span>
+<span class="sd">        `None` (default), then expecting the table to already exist.</span>
+<span class="sd">    \*optional_columns : str</span>
+<span class="sd">        Additional columns in the Arrow schema whose metadata is to be stored in</span>
+<span class="sd">        the metastore. These should have some clustering in order to be useful,</span>
+<span class="sd">        even if less clustering than in the `cluster_column`</span>
+<span class="sd">    \*\*store_kwargs : Any, optional</span>
+<span class="sd">        Arguments to be passed to sqlalchemy.create_engine()</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    engine : sa.engine.base.Engine</span>
+<span class="sd">        SQLAlchemy engine that connects to the database</span>
+<span class="sd">    table : sa.sql.schema.Table</span>
+<span class="sd">        SQLAlchemy table holding the metadata</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        from pyarrow import fs</span>
+<span class="sd">        import pyarrow.dataset as ds</span>
+<span class="sd">        from lakeshack.metastore import Metastore</span>
+
+<span class="sd">        s3 = fs.S3FileSystem(region=&quot;us-iso-east-1&quot;)</span>
+<span class="sd">        s3_dir = &quot;sales_data/2023/03/15/&quot;</span>
+<span class="sd">        dataset = ds.dataset(s3_dir, filesystem=s3, format=&quot;parquet&quot;)</span>
+
+<span class="sd">        metastore = Metastore(&quot;sqlite:///:memory:&quot;, &quot;sales_table&quot;, dataset.schema,</span>
+<span class="sd">            &quot;customer_id&quot;, &quot;timestamp&quot;)</span>
+<span class="sd">        metastore.update(s3_dir, filesystem=s3, n_workers=30)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">store_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">store_table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">arrow_schema</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">lib</span><span class="o">.</span><span class="n">Schema</span><span class="p">,</span>
+        <span class="n">cluster_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">optional_columns</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">store_kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a connection to the metastore.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_url</span> <span class="o">=</span> <span class="n">store_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store_table</span> <span class="o">=</span> <span class="n">store_table</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span> <span class="o">=</span> <span class="n">arrow_schema</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cluster_column</span> <span class="o">=</span> <span class="n">cluster_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span> <span class="o">=</span> <span class="n">optional_columns</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">create_engine</span><span class="p">(</span><span class="n">store_url</span><span class="p">,</span> <span class="o">**</span><span class="n">store_kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metadata_obj</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">()</span>
+        <span class="c1"># See if the table already exists</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata_obj</span><span class="o">.</span><span class="n">reflect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">only</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">store_table</span><span class="p">])</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">table_exists</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table_exists</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Create the table if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">table_exists</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating </span><span class="si">{store_table}</span><span class="s2"> in the metastore&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_table</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{store_table}</span><span class="s2"> already exists. Skipping table creation&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata_obj</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">store_table</span><span class="p">]</span>
+            <span class="c1"># Get the cluster_column from the table if not given in init()</span>
+            <span class="k">if</span> <span class="n">cluster_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">col_name_parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_min&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cluster_column</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_name_parts</span><span class="p">)</span>
+            <span class="c1"># Get optional columns from the table if not given in init()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">optional_columns</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="n">col_name_parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_min&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_name_parts</span><span class="p">))</span>
+
+            <span class="c1"># Some quality checking to make sure that the table has the same format</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Existing table columns don&#39;t match those given&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;filepath&quot;</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col.name}</span><span class="s2"> != &#39;filepath&#39;&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col.name}</span><span class="s2">, </span><span class="si">{col.type}</span><span class="s2"> is not an instance of </span><span class="si">{sa.String}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.cluster_column}</span><span class="s2">_min&quot;</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">col_name</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;cluster_column mismatch: </span><span class="si">{col.name}</span><span class="s2"> != </span><span class="si">{col_name}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">schema_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_min&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">schema_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">schema_type</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;cluster_column type mismatch: &quot;</span>
+                            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col.type}</span><span class="s2"> is not an instance of </span><span class="si">{schema_type}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.cluster_column}</span><span class="s2">_max&quot;</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">col_name</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;cluster_column mismatch: </span><span class="si">{col.name}</span><span class="s2"> != </span><span class="si">{col_name}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">schema_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_max&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">schema_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">schema_type</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;cluster_column type mismtach: &quot;</span>
+                            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col.type}</span><span class="s2"> is not an instance of </span><span class="si">{schema_type}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.optional_columns[i-3]}</span><span class="s2">_min&quot;</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">col_name</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;optional_column mismatch </span><span class="si">{col.name}</span><span class="s2"> != </span><span class="si">{col_name}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">schema_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_min&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">schema_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">schema_type</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;optional_column type mismatch: </span><span class="si">{col_name}</span><span class="s2">, &quot;</span>
+                            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col.type}</span><span class="s2"> is not an instance of </span><span class="si">{schema_type}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">col_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.optional_columns[i-4]}</span><span class="s2">_max&quot;</span>
+                    <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">col_name</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;optional_column mismatch </span><span class="si">{col.name}</span><span class="s2"> != </span><span class="si">{col_name}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="n">schema_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">col_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_max&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">schema_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">schema_name</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">schema_type</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;optional_column type mismatch: </span><span class="si">{col_name}</span><span class="s2">, &quot;</span>
+                            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col.type}</span><span class="s2"> is not an instance of </span><span class="si">{schema_type}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+
+<div class="viewcode-block" id="Metastore.update"><a class="viewcode-back" href="../../modules.html#lakeshack.metastore.Metastore.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parquet_file_or_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">filesystem</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">FileSystem</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">LocalFileSystem</span><span class="p">(),</span>
+        <span class="n">n_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add parquet file metadata to the metastore. If a directory is provided, then a</span>
+<span class="sd">        recursive walk is done. Any non-parquet files are simply skipped and logged.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parquet_file_or_dir : str</span>
+<span class="sd">            Provide the filepath to either a single parquet file or a directory that</span>
+<span class="sd">            contains many parquet files.</span>
+<span class="sd">        filesystem : fs.FileSystem, optional</span>
+<span class="sd">            PyArrow file system where parquet files are located.</span>
+<span class="sd">            Default is fs.LocalFileSystem()</span>
+<span class="sd">        n_workers : int, optional</span>
+<span class="sd">            Size of the thread pool used to concurrently retrieve parquet file</span>
+<span class="sd">            metadata. Default is 16</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gather_metadata</span><span class="p">(</span><span class="n">parquet_file_or_dir</span><span class="p">,</span> <span class="n">filesystem</span><span class="p">,</span> <span class="n">n_workers</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">metadata</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;update() No metadata found in </span><span class="si">{parquet_file_or_dir}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="p">(</span>
+                <span class="mi">3</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span><span class="p">)</span>
+            <span class="p">),</span> <span class="s2">&quot;gathered metadata length does not match number of database columns&quot;</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+            <span class="c1"># If filepath is already in the metastore, then skip it</span>
+            <span class="n">add_metadata</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">existing_filepaths</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                    <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">filepath</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;filepath&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">])</span>
+                    <span class="p">)</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+            <span class="p">]</span>
+            <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">m</span><span class="p">[</span><span class="s2">&quot;filepath&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_filepaths</span><span class="p">:</span>
+                    <span class="n">add_metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;update() </span><span class="si">{m[&#39;filepath&#39;]}</span><span class="s2"> already in metastore. Skipping it&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">add_metadata</span><span class="p">:</span>
+                    <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                        <span class="n">sa</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">),</span>
+                        <span class="n">add_metadata</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+            <span class="k">except</span> <span class="n">sa</span><span class="o">.</span><span class="n">exc</span><span class="o">.</span><span class="n">IntegrityError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;update() threw </span><span class="si">{exc}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">add_metadata</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;update(</span><span class="si">{parquet_file_or_dir}</span><span class="s2">) added {len(add_metadata):,} &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;records in {end-start}&quot;</span>
+        <span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_min_max</span><span class="p">(</span>
+        <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">column_idxs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">filesystem</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">FileSystem</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Worker function used by a thread pool to retrieve min/max values from a given</span>
+<span class="sd">        parquet file</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filepath : str</span>
+<span class="sd">            Filepath to a parquet file</span>
+<span class="sd">        column_idxs : List[int]</span>
+<span class="sd">            Column ids from the arrow schema from which to gather min/max values</span>
+<span class="sd">        filesystem : fs.FileSystem</span>
+<span class="sd">            File system storing `filepath`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict</span>
+<span class="sd">            {&quot;error_msg&quot;: msg, &quot;data&quot;: Dict[str, Any]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pq_file</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">ParquetFile</span><span class="p">(</span><span class="n">filesystem</span><span class="o">.</span><span class="n">open_input_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+            <span class="n">metadata</span> <span class="o">=</span> <span class="n">pq_file</span><span class="o">.</span><span class="n">metadata</span>
+            <span class="n">arrow_schema</span> <span class="o">=</span> <span class="n">pq_file</span><span class="o">.</span><span class="n">schema_arrow</span>
+        <span class="k">except</span> <span class="n">pa</span><span class="o">.</span><span class="n">ArrowException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error_msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;ERROR for </span><span class="si">{filepath}</span><span class="s2">: </span><span class="si">{exc}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;filepath&quot;</span><span class="p">:</span> <span class="n">filepath</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">column_idxs</span><span class="p">:</span>
+            <span class="n">col_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">col_min</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="o">.</span><span class="n">min</span>
+            <span class="n">col_max</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="o">.</span><span class="n">max</span>
+            <span class="c1"># Parquet metadata seems to cast timezones to UTC. This casts them back</span>
+            <span class="k">if</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_timestamp</span><span class="p">(</span><span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">col_min</span> <span class="o">=</span> <span class="n">col_min</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span>
+                        <span class="n">tz</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tz</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">col_max</span> <span class="o">=</span> <span class="n">col_max</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span>
+                        <span class="n">tz</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tz</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">num_row_groups</span><span class="p">):</span>
+                <span class="n">rg_min</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="o">.</span><span class="n">min</span>
+                <span class="n">rg_max</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">row_group</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">statistics</span><span class="o">.</span><span class="n">max</span>
+                <span class="k">if</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_timestamp</span><span class="p">(</span><span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">rg_min</span> <span class="o">=</span> <span class="n">rg_min</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span>
+                            <span class="n">tz</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tz</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="n">rg_max</span> <span class="o">=</span> <span class="n">rg_max</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span>
+                            <span class="n">tz</span><span class="o">=</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">arrow_schema</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="o">.</span><span class="n">tz</span><span class="p">)</span>
+                        <span class="p">)</span>
+                <span class="k">if</span> <span class="n">rg_min</span> <span class="o">&lt;</span> <span class="n">col_min</span><span class="p">:</span>
+                    <span class="n">col_min</span> <span class="o">=</span> <span class="n">rg_min</span>
+                <span class="k">if</span> <span class="n">rg_max</span> <span class="o">&gt;</span> <span class="n">col_max</span><span class="p">:</span>
+                    <span class="n">col_max</span> <span class="o">=</span> <span class="n">rg_max</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col_name}</span><span class="s2">_min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_min</span>
+            <span class="n">data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col_name}</span><span class="s2">_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_max</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error_msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;SUCCESS for </span><span class="si">{filepath}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_gather_metadata</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">parquet_file_or_dir</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="n">filesystem</span><span class="p">:</span> <span class="n">fs</span><span class="o">.</span><span class="n">FileSystem</span><span class="p">,</span>
+        <span class="n">n_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gather the metadata pertaining to the cluster column and any optional columns</span>
+<span class="sd">        from either a single parquet file or a directory. If a directory, recursively</span>
+<span class="sd">        walk the directory for files. This uses a ThreadPool to speed things up.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parquet_file_or_dir : str | List[str]</span>
+<span class="sd">            Single parquet filepath or a directory containing parquet files</span>
+<span class="sd">        filesystem : fs.FileSystem</span>
+<span class="sd">            pyarrow file system where parquet file(s) are stored</span>
+<span class="sd">        n_workers : int</span>
+<span class="sd">            Size of the threadpool to speed things up</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Tuple]</span>
+<span class="sd">            One Tuple for each parquet file found. Tuple contains</span>
+<span class="sd">            (filepath, cluster_col_min, cluster_col_max,...) with min/max columns</span>
+<span class="sd">            for each optional column specified at initialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">filesystem</span><span class="o">.</span><span class="n">get_file_info</span><span class="p">(</span><span class="n">parquet_file_or_dir</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">:</span>
+            <span class="n">filepaths</span> <span class="o">=</span> <span class="p">[</span><span class="n">parquet_file_or_dir</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_selector</span> <span class="o">=</span> <span class="n">fs</span><span class="o">.</span><span class="n">FileSelector</span><span class="p">(</span><span class="n">parquet_file_or_dir</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">filepaths</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">path</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">filesystem</span><span class="o">.</span><span class="n">get_file_info</span><span class="p">(</span><span class="n">file_selector</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">fs</span><span class="o">.</span><span class="n">FileType</span><span class="o">.</span><span class="n">File</span>
+            <span class="p">]</span>
+
+        <span class="c1"># Gather the mapping from column names to column idx in the schema</span>
+        <span class="n">arrow_columns_idx</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_column</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span><span class="p">:</span>
+            <span class="n">col_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="n">arrow_columns_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col_idx</span><span class="p">)</span>
+
+        <span class="n">metadata</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">n_workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">future_to_path</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">ex</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                    <span class="n">Metastore</span><span class="o">.</span><span class="n">_get_min_max</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="n">arrow_columns_idx</span><span class="p">,</span> <span class="n">filesystem</span>
+                <span class="p">):</span> <span class="n">filepath</span>
+                <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">filepaths</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">future</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">future_to_path</span><span class="p">):</span>
+                <span class="n">filepath</span> <span class="o">=</span> <span class="n">future_to_path</span><span class="p">[</span><span class="n">future</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_gather_metadata(</span><span class="si">{filepath}</span><span class="s2">) threw: </span><span class="si">{exc}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                        <span class="n">metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;error_msg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ERROR&quot;</span><span class="p">):</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s1">&#39;_gather_metadata() </span><span class="si">{result[&quot;error_msg&quot;]}</span><span class="s1">&#39;</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s1">&#39;_gather_metadata() </span><span class="si">{result[&quot;error_msg&quot;]}</span><span class="s1">&#39;</span>
+                            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">metadata</span>
+
+<div class="viewcode-block" id="Metastore.query"><a class="viewcode-back" href="../../modules.html#lakeshack.metastore.Metastore.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cluster_column_values</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+        <span class="n">optional_where_clauses</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given the `cluster_column_values` return the filepaths of the parquet</span>
+<span class="sd">        files whose min/max contains a cluster_column_value.</span>
+
+<span class="sd">        If `optional_where_clauses` are provide, then further restrict the filepaths</span>
+<span class="sd">        to return so they match these conditions too.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cluster_column_values : List[Any]</span>
+<span class="sd">            List of cluster column values of interest</span>
+<span class="sd">        optional_where_clauses : List[Tuple], optional</span>
+<span class="sd">            List of optional columns to further restrict the parquet files to be</span>
+<span class="sd">            queried. Each tuple is three values column_name,</span>
+<span class="sd">            comparision operator [&gt;=, &gt;, =, ==, &lt;, &lt;=], and value</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Dict[str, List[Any]]</span>
+<span class="sd">            Keys are the filepaths to the parquet files. Values are a list of</span>
+<span class="sd">            the cluster column values associated with that parquet file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">pq_files</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="n">col_cluster_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.cluster_column}</span><span class="s2">_min&quot;</span><span class="p">]</span>
+        <span class="n">col_cluster_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.cluster_column}</span><span class="s2">_max&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">cluster_column_value</span> <span class="ow">in</span> <span class="n">cluster_column_values</span><span class="p">:</span>
+            <span class="n">stmt</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">sa</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+                    <span class="n">col_cluster_min</span> <span class="o">&lt;=</span> <span class="n">cluster_column_value</span><span class="p">,</span>
+                    <span class="n">cluster_column_value</span> <span class="o">&lt;=</span> <span class="n">col_cluster_max</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">optional_where_clauses</span><span class="p">:</span>
+                <span class="n">col_min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col}</span><span class="s2">_min&quot;</span><span class="p">]</span>
+                <span class="n">col_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col}</span><span class="s2">_max&quot;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span>
+                    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">col_max</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">:</span>
+                    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">col_max</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;=&quot;</span> <span class="ow">or</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;==&quot;</span><span class="p">:</span>
+                    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="n">col_min</span> <span class="o">&lt;=</span> <span class="n">value</span><span class="p">,</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">col_max</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">:</span>
+                    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">col_min</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">:</span>
+                    <span class="n">stmt</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">col_min</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;query() optional_where_clause </span><span class="si">{op}</span><span class="s2"> is not a valid comparision&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{op}</span><span class="s2"> is not a valid comparision&quot;</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">filepath</span><span class="p">,)</span> <span class="ow">in</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">stmt</span><span class="p">):</span>
+                    <span class="n">pq_files</span><span class="p">[</span><span class="n">filepath</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cluster_column_value</span><span class="p">)</span>
+
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;query() returned {len(pq_files)} results in {end-start}&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pq_files</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_map_pa_type</span><span class="p">(</span><span class="n">pa_type</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">DataType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Map arrow DataTypes to SQLAlchemy data types</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pa_type : pa.DataType</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Corresponding storage class for the database</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">pa_type</span><span class="p">)</span> <span class="ow">or</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_large_string</span><span class="p">(</span><span class="n">pa_type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span>
+        <span class="k">elif</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer</span><span class="p">(</span><span class="n">pa_type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">BigInteger</span>
+        <span class="k">elif</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_floating</span><span class="p">(</span><span class="n">pa_type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Float</span>
+        <span class="k">elif</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_date</span><span class="p">(</span><span class="n">pa_type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">Date</span>
+        <span class="k">elif</span> <span class="n">pa</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_timestamp</span><span class="p">(</span><span class="n">pa_type</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span>
+            <span class="c1"># if pa_type.tz is not None:</span>
+            <span class="c1">#    return sa.DateTime(</span>
+            <span class="c1">#        timezone=False</span>
+            <span class="c1">#    )  # Should be true; but reflection doesn&#39;t pick up the timezone=True</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#    return sa.DateTime(timezone=False)</span>
+
+    <span class="k">def</span> <span class="nf">_create_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the table, store_table, based upon the arrow schema and column names</span>
+<span class="sd">        stored in arrow_columns</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Specify the &#39;filepath&#39; column as a string and the primary key for the table</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;filepath&quot;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+
+        <span class="c1"># Specify the cluster columns and corresponding type</span>
+        <span class="n">db_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cluster_column</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+        <span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.cluster_column}</span><span class="s2">_min&quot;</span><span class="p">,</span> <span class="n">db_type</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{self.cluster_column}</span><span class="s2">_max&quot;</span><span class="p">,</span> <span class="n">db_type</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Add optional columns to be stored in the database</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">optional_columns</span><span class="p">:</span>
+            <span class="n">arrow_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrow_schema</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="n">type</span>
+            <span class="n">db_type</span> <span class="o">=</span> <span class="n">Metastore</span><span class="o">.</span><span class="n">_map_pa_type</span><span class="p">(</span><span class="n">arrow_type</span><span class="p">)</span>
+            <span class="c1"># Might not have defined the mapping between arrow &amp; database</span>
+            <span class="k">if</span> <span class="n">db_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col}</span><span class="s2">_min&quot;</span><span class="p">,</span> <span class="n">db_type</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{col}</span><span class="s2">_max&quot;</span><span class="p">,</span> <span class="n">db_type</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;_create_table() </span><span class="si">{col}</span><span class="s2"> with {arrow_type=:} failed to map to &quot;</span>
+                    <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;database type. Not adding </span><span class="si">{col}</span><span class="s2">_min or </span><span class="si">{col}</span><span class="s2">_max to database &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;table&quot;</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store_table</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">metadata_obj</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">columns</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="n">checkfirst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Matthew Hendrey.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
