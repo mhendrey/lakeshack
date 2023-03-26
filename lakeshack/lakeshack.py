@@ -35,8 +35,48 @@ from lakeshack.metastore import Metastore
 class Lakeshack:
     """
     Retrieve records stored in Parquet files by first checking the Metastore to
-    determine which Parquet files might have the requested records and then only
+    determine which Parquet files **might** have the requested records and then only
     querying these files.
+
+    Parameters
+    ----------
+    metastore : Metastore
+        Metastore containing the parquet file metadata that lakeshack will use
+    filesystem : fs.FileSystem, optional
+        pyarrow file system. Use fs.S3FileSystem(region='your_region') for
+        connecting to S3. Default is fs.LocalSystem()
+
+    Attributes
+    ----------
+    s3_table : sa.sql.schema.Table
+        Empty SQLAlchemy table used to make it easier to construct the SQL expression
+        that gets passed to S3 Select.
+
+    Example
+    -------
+
+    ::
+
+        from lakeshack.lakeshack import Lakeshack
+        from lakeshack.metastore import Metastore
+        from pyarrow import fs
+        import pyarrow.dataset as ds
+
+        s3 = fs.S3FileSystem(region="us-iso-east-1")
+        s3_dir = "sales_data/2023/03/15/"
+        dataset = ds.dataset(s3_dir, filesystem=s3, format="parquet")
+
+        # Connect to an existing metastore
+        metastore = Metastore("sqlite:///sales.db", "sales_table", dataset.schema)
+        lakeshake = Lakeshack(metastore, s3)
+
+        pa_table = lakeshack.query(55)
+        # Use S3 Select using a thread pool with 50 workers
+        pa_s3_table = lakeshack.query_s3_select(
+            55,
+            n_workers = 50,
+        )
+
     """
 
     def __init__(
@@ -45,40 +85,6 @@ class Lakeshack:
         """
         Instantiate a Lakeshack that will use the metastore & filesystem to speed
         up retrieval of records from the parquet files stored in the filesystem.
-
-        Example:
-
-        ```
-        import pyarrow.dataset as ds
-        from pyarrow import fs
-
-        from lakeshack.metastore import Metastore
-        from lakeshack.lakeshack import Lakeshack
-
-        s3 = fs.S3FileSystem(region="us-iso-east-1")
-        dataset = ds.dataset(
-            "path/in/s3/to/parquets/",
-            format="parquet",
-            filesystem=s3,
-        )
-        metastore = Metastore(
-            "sqlite:///some.db",
-            "some_table",
-            dataset.schema,
-            "id",
-        )
-        metastore.update("path/in/s3/to/parquets/", s3, n_workers=20)
-        lakeshack = Lakeshack(metastore, s3)
-        pa_table = lakeshack.query_s3_select("some_id", n_workers=20)
-        ```
-
-        Parameters
-        ----------
-        metastore : Metastore
-            Metastore containing the parquet file metadata that lakeshack will use
-        filesystem : fs.FileSystem, optional
-            pyarrow file system. Use fs.S3FileSystem(region='your_region') for
-            connecting to S3. Default is fs.LocalSystem()
         """
         self.metastore = metastore
         self.filesystem = filesystem

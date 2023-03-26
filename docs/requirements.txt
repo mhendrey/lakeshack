@@ -1,0 +1,7 @@
+boto3
+lakehouse
+pandas
+pyarrow >= 8.0.0
+pytest
+sphinx-rtd-theme >= 1.0.0
+sqlalchemy

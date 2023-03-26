@@ -30,6 +30,50 @@ from typing import Dict, List, Tuple, Union, Any
 class Metastore:
     """
     Store metadata from parquet files into a database using SQLAlchmey
+
+    Parameters
+    ----------
+    store_url : str
+        URL string to backend database. See sqlalchemy.create_engine() for more
+        details and examples.
+    store_table : str
+        Name of the table storing the parquet metadata
+    arrow_schema : pa.lib.Schema
+        Arrow schema of the parquet files
+    cluster_column : str, optional
+        Name of the column in the Arrow schema used for clustering the data. If
+        `None` (default), then expecting the table to already exist.
+    \*optional_columns : str
+        Additional columns in the Arrow schema whose metadata is to be stored in
+        the metastore. These should have some clustering in order to be useful,
+        even if less clustering than in the `cluster_column`
+    \*\*store_kwargs : Any, optional
+        Arguments to be passed to sqlalchemy.create_engine()
+
+    Attributes
+    ----------
+    engine : sa.engine.base.Engine
+        SQLAlchemy engine that connects to the database
+    table : sa.sql.schema.Table
+        SQLAlchemy table holding the metadata
+
+    Example
+    -------
+
+    ::
+
+        from pyarrow import fs
+        import pyarrow.dataset as ds
+        from lakeshack.metastore import Metastore
+
+        s3 = fs.S3FileSystem(region="us-iso-east-1")
+        s3_dir = "sales_data/2023/03/15/"
+        dataset = ds.dataset(s3_dir, filesystem=s3, format="parquet")
+
+        metastore = Metastore("sqlite:///:memory:", "sales_table", dataset.schema,
+            "customer_id", "timestamp")
+        metastore.update(s3_dir, filesystem=s3, n_workers=30)
+
     """
 
     def __init__(
@@ -44,49 +88,6 @@ class Metastore:
         """
         Initialize a connection to the metastore.
 
-        Example:
-
-        ```
-        from pyarrow import fs
-        import pyarrow.dataset as ds
-
-        dataset = ds.dataset(
-            "/path/to/parquet/dir/",
-            fileformat="parquet",
-            filesystem=fs.LocalFileSystem(),
-        )
-        metastore = Metastore(
-            "sqlite:///:memory:",
-            "some_table",
-            ds.schema,
-            "id",
-        )
-        metastore.update("/path/to/parquet/dir/")
-        ```
-
-        which creates the table "some_table" in the database with columns
-        |----------|--------|--------|
-        | filepath | id_min | id_max |
-        |----------|--------|--------|
-
-        Parameters
-        ----------
-        store_url : str
-            URL string to backend database. See sqlalchemy.create_engine() for more
-            details and examples.
-        store_table : str
-            Name of the table storing the parquet metadata
-        arrow_schema : pa.lib.Schema
-            Arrow schema of the parquet files
-        cluster_column : str, optional
-            Name of the column in the Arrow schema used for clustering the data. If
-            `None` (default), then expecting the table to already exist.
-        *optional_columns : str
-            Additional columns in the Arrow schema whose metadata is to be stored in
-            the metastore. These should have some clustering in order to be useful,
-            even if less clustering than in the `cluster_column`
-        **store_kwargs : Any, optional
-            Arguments to be passed to sqlalchemy.create_engine()
         """
         self.store_url = store_url
         self.store_table = store_table
@@ -199,29 +200,19 @@ class Metastore:
     def update(
         self,
         parquet_file_or_dir: str,
-        file_system: fs.FileSystem = fs.LocalFileSystem(),
+        filesystem: fs.FileSystem = fs.LocalFileSystem(),
         n_workers: int = 16,
     ) -> None:
         """
         Add parquet file metadata to the metastore. If a directory is provided, then a
         recursive walk is done. Any non-parquet files are simply skipped and logged.
 
-        Example:
-
-        ```
-        from pyarrow import fs
-
-        s3 = fs.S3FileSystem(region="us-east-1")
-        parquet_dir = "path/in/s3/to/parquets/"
-        metastore.update(parquet_dir, file_system=s3)
-        ```
-
         Parameters
         ----------
         parquet_file_or_dir : str
             Provide the filepath to either a single parquet file or a directory that
             contains many parquet files.
-        file_system : fs.FileSystem, optional
+        filesystem : fs.FileSystem, optional
             PyArrow file system where parquet files are located.
             Default is fs.LocalFileSystem()
         n_workers : int, optional
@@ -233,7 +224,7 @@ class Metastore:
         None
         """
         start = datetime.now()
-        metadata = self._gather_metadata(parquet_file_or_dir, file_system, n_workers)
+        metadata = self._gather_metadata(parquet_file_or_dir, filesystem, n_workers)
 
         if not metadata:
             self.logger.warning(f"update() No metadata found in {parquet_file_or_dir}")
@@ -280,7 +271,7 @@ class Metastore:
 
     @staticmethod
     def _get_min_max(
-        filepath: str, column_idxs: List[int], file_system: fs.FileSystem
+        filepath: str, column_idxs: List[int], filesystem: fs.FileSystem
     ) -> Dict:
         """
         Worker function used by a thread pool to retrieve min/max values from a given
@@ -292,7 +283,7 @@ class Metastore:
             Filepath to a parquet file
         column_idxs : List[int]
             Column ids from the arrow schema from which to gather min/max values
-        file_system : fs.FileSystem
+        filesystem : fs.FileSystem
             File system storing `filepath`
 
         Returns
@@ -301,7 +292,7 @@ class Metastore:
             {"error_msg": msg, "data": Dict[str, Any]}
         """
         try:
-            pq_file = pq.ParquetFile(file_system.open_input_file(filepath))
+            pq_file = pq.ParquetFile(filesystem.open_input_file(filepath))
             metadata = pq_file.metadata
             arrow_schema = pq_file.schema_arrow
         except pa.ArrowException as exc:
@@ -344,7 +335,7 @@ class Metastore:
     def _gather_metadata(
         self,
         parquet_file_or_dir: Union[str, List[str]],
-        file_system: fs.FileSystem,
+        filesystem: fs.FileSystem,
         n_workers: int,
     ) -> List[Tuple]:
         """
@@ -356,7 +347,7 @@ class Metastore:
         ----------
         parquet_file_or_dir : str | List[str]
             Single parquet filepath or a directory containing parquet files
-        file_system : fs.FileSystem
+        filesystem : fs.FileSystem
             pyarrow file system where parquet file(s) are stored
         n_workers : int
             Size of the threadpool to speed things up
@@ -368,13 +359,13 @@ class Metastore:
             (filepath, cluster_col_min, cluster_col_max,...) with min/max columns
             for each optional column specified at initialization.
         """
-        if file_system.get_file_info(parquet_file_or_dir).is_file:
+        if filesystem.get_file_info(parquet_file_or_dir).is_file:
             filepaths = [parquet_file_or_dir]
         else:
             file_selector = fs.FileSelector(parquet_file_or_dir, recursive=True)
             filepaths = [
                 f.path
-                for f in file_system.get_file_info(file_selector)
+                for f in filesystem.get_file_info(file_selector)
                 if f.type == fs.FileType.File
             ]
 
@@ -388,7 +379,7 @@ class Metastore:
         with ThreadPoolExecutor(n_workers) as ex:
             future_to_path = {
                 ex.submit(
-                    Metastore._get_min_max, filepath, arrow_columns_idx, file_system
+                    Metastore._get_min_max, filepath, arrow_columns_idx, filesystem
                 ): filepath
                 for filepath in filepaths
             }
@@ -416,7 +407,7 @@ class Metastore:
 
     def query(
         self,
-        cluster_column_values: List,
+        cluster_column_values: List[Any],
         optional_where_clauses: List[Tuple] = [],
     ) -> Dict[str, List[Any]]:
         """
@@ -428,12 +419,12 @@ class Metastore:
 
         Parameters
         ----------
-        cluster_column_values : List
-            List of cluster column values of interest.
+        cluster_column_values : List[Any]
+            List of cluster column values of interest
         optional_where_clauses : List[Tuple], optional
             List of optional columns to further restrict the parquet files to be
             queried. Each tuple is three values column_name,
-            comparision operator [>=, >, =, ==, <, <=], value
+            comparision operator [>=, >, =, ==, <, <=], and value
 
         Returns
         -------
