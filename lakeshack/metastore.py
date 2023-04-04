@@ -128,74 +128,80 @@ class Metastore:
             # Some quality checking to make sure that the table has the same format
             if len(self.table.columns) != (3 + 2 * len(self.optional_columns)):
                 raise ValueError(f"Existing table columns don't match those given")
-            for i, col in enumerate(self.table.columns):
-                if i == 0:
-                    if col.name != "filepath":
-                        raise ValueError(f"{col.name} != 'filepath'")
-                    if not isinstance(col.type, sa.String):
-                        raise TypeError(
-                            f"{col.name}, {col.type} is not an instance of {sa.String}"
-                        )
-                elif i == 1:
-                    col_name = f"{self.cluster_column}_min"
-                    if col.name != col_name:
-                        raise ValueError(
-                            f"cluster_column mismatch: {col.name} != {col_name}"
-                        )
-                    schema_name = "".join(col_name.split("_min")[:-1])
-                    schema_type = Metastore._map_pa_type(
-                        self.arrow_schema.field(schema_name).type
+
+            ################ Check the individual columns
+            # filepath column
+            col = self.table.columns[0]
+            if col.name != "filepath":
+                raise ValueError(f"{col.name} != filepath")
+            if not isinstance(col.type, sa.String):
+                raise TypeError(
+                    f"{col.name}, {col.type} is not an instance of {sa.String}"
+                )
+
+            # cluster_column_min
+            col = self.table.columns[1]
+            col_name = f"{self.cluster_column}_min"
+            if col.name != col_name:
+                raise ValueError(f"cluster_column mismatch: {col.name} != {col_name}")
+            schema_name = "".join(col_name.split("_min")[:-1])
+            schema_type = Metastore._map_pa_type(
+                self.arrow_schema.field(schema_name).type
+            )
+            if not isinstance(col.type, schema_type):
+                raise TypeError(
+                    f"cluster_column type mismatch: "
+                    + f"{col.type} is not an instance of {schema_type}"
+                )
+
+            # cluster_column_max
+            col = self.table.columns[2]
+            col_name = f"{self.cluster_column}_max"
+            if col.name != col_name:
+                raise ValueError(f"cluster_column mismatch: {col.name} != {col_name}")
+            schema_name = "".join(col_name.split("_max")[:-1])
+            schema_type = Metastore._map_pa_type(
+                self.arrow_schema.field(schema_name).type
+            )
+            if not isinstance(col.type, schema_type):
+                raise TypeError(
+                    f"cluster_column type mismtach: "
+                    + f"{col.type} is not an instance of {schema_type}"
+                )
+
+            # optional columns
+            for i, optional_column in enumerate(optional_columns):
+                # _min column
+                col = self.table.columns[i * 2 + 3]
+                col_name = f"{optional_column}_min"
+                if col.name != col_name:
+                    raise ValueError(
+                        f"optional_column mismatch {col.name} != {col_name}"
                     )
-                    if not isinstance(col.type, schema_type):
-                        raise TypeError(
-                            f"cluster_column type mismatch: "
-                            + f"{col.type} is not an instance of {schema_type}"
-                        )
-                elif i == 2:
-                    col_name = f"{self.cluster_column}_max"
-                    if col.name != col_name:
-                        raise ValueError(
-                            f"cluster_column mismatch: {col.name} != {col_name}"
-                        )
-                    schema_name = "".join(col_name.split("_max")[:-1])
-                    schema_type = Metastore._map_pa_type(
-                        self.arrow_schema.field(schema_name).type
+                schema_type = Metastore._map_pa_type(
+                    self.arrow_schema.field(optional_column).type
+                )
+                if not isinstance(col.type, schema_type):
+                    raise TypeError(
+                        f"optional_column type mismatch: {col_name}, "
+                        + f"{col.type} is not an instance of {schema_type}"
                     )
-                    if not isinstance(col.type, schema_type):
-                        raise TypeError(
-                            f"cluster_column type mismtach: "
-                            + f"{col.type} is not an instance of {schema_type}"
-                        )
-                elif i % 2 == 1:
-                    col_name = f"{self.optional_columns[i-3]}_min"
-                    if col.name != col_name:
-                        raise ValueError(
-                            f"optional_column mismatch {col.name} != {col_name}"
-                        )
-                    schema_name = "".join(col_name.split("_min")[:-1])
-                    schema_type = Metastore._map_pa_type(
-                        self.arrow_schema.field(schema_name).type
+
+                # _max column
+                col = self.table.columns[(i * 2 + 1) + 3]
+                col_name = f"{optional_column}_max"
+                if col.name != col_name:
+                    raise ValueError(
+                        f"optional_column mismatch {col.name} != {col_name}"
                     )
-                    if not isinstance(col.type, schema_type):
-                        raise TypeError(
-                            f"optional_column type mismatch: {col_name}, "
-                            + f"{col.type} is not an instance of {schema_type}"
-                        )
-                elif i % 2 == 0:
-                    col_name = f"{self.optional_columns[i-4]}_max"
-                    if col.name != col_name:
-                        raise ValueError(
-                            f"optional_column mismatch {col.name} != {col_name}"
-                        )
-                    schema_name = "".join(col_name.split("_max")[:-1])
-                    schema_type = Metastore._map_pa_type(
-                        self.arrow_schema.field(schema_name).type
+                schema_type = Metastore._map_pa_type(
+                    self.arrow_schema.field(optional_column).type
+                )
+                if not isinstance(col.type, schema_type):
+                    raise TypeError(
+                        f"optional_column type mismatch: {col_name}, "
+                        + f"{col.type} is not an instance of {schema_type}"
                     )
-                    if not isinstance(col.type, schema_type):
-                        raise TypeError(
-                            f"optional_column type mismatch: {col_name}, "
-                            + f"{col.type} is not an instance of {schema_type}"
-                        )
 
     def update(
         self,

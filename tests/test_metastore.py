@@ -122,7 +122,9 @@ def metastore_db_ts(tmp_path_factory: Path, pq_dir_ts):
     dataset = ds.dataset(data_dir, format="parquet", filesystem=local_fs)
     pa_schema = dataset.schema
 
-    metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema, "id", "timestamp")
+    metastore = Metastore(
+        f"sqlite:///{dbname}", "test", pa_schema, "id", "timestamp", "x"
+    )
     metastore.update(data_dir, local_fs)
 
     return dbname
@@ -155,7 +157,9 @@ def metastore_db_tz(tmp_path_factory: Path, pq_dir_tz):
     dataset = ds.dataset(data_dir, format="parquet", filesystem=local_fs)
     pa_schema = dataset.schema
 
-    metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema, "id", "timestamp")
+    metastore = Metastore(
+        f"sqlite:///{dbname}", "test", pa_schema, "id", "timestamp", "x"
+    )
     metastore.update(data_dir, local_fs)
 
     return dbname
@@ -188,7 +192,9 @@ def metastore_db_dt(tmp_path_factory: Path, pq_dir_dt):
     dataset = ds.dataset(data_dir, format="parquet", filesystem=local_fs)
     pa_schema = dataset.schema
 
-    metastore = Metastore(f"sqlite:///{dbname}", "test", pa_schema, "id", "timestamp")
+    metastore = Metastore(
+        f"sqlite:///{dbname}", "test", pa_schema, "id", "timestamp", "x"
+    )
     metastore.update(data_dir, local_fs)
 
     return dbname
@@ -209,7 +215,7 @@ def update_check(metastore: Metastore, is_datetime: bool):
 
         assert len(results) == 10, f"Update failed {len(results)} != 10"
 
-        for idx, (filepath, id_min, id_max, ts_min, ts_max) in enumerate(results):
+        for idx, (filepath, id_min, id_max, ts_min, ts_max, _, _) in enumerate(results):
             if is_datetime:
                 ts_min = ts_min.date()
                 ts_max = ts_max.date()
