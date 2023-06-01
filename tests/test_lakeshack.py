@@ -262,6 +262,28 @@ def test_query_ts(metastore_db_ts, pq_dir_ts):
     query_check(lakeshack, "ts")
 
 
+def test_query_ts_optional_where_clause(pq_dir_ts):
+    """
+    Test querying the metastore that has just the 'id' column listed,
+    but provide an optional 'timestamp' clause in the lakeshack.query().
+    This should pull back all the records and then filter according to the
+    timestamp filter
+
+    Parameters
+    ----------
+    pq_dir_ts : Path
+        Session-scoped fixture that is a path (dir) to the test parquet files
+    """
+    data_dir = str(pq_dir_ts)
+    dataset = ds.dataset(data_dir, format="parquet", filesystem=fs.LocalFileSystem())
+    pa_schema = dataset.schema
+
+    metastore = Metastore("sqlite:///:memory:", "test", pa_schema, "id")
+    metastore.update(data_dir, fs.LocalFileSystem())
+    lakeshack = Lakeshack(metastore, fs.LocalFileSystem())
+    query_check(lakeshack, "ts")
+
+
 def test_query_tz(metastore_db_tz, pq_dir_tz):
     """
     Test querying the metastore when timestamp column is tz aware datetime

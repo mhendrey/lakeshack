@@ -450,7 +450,9 @@ class Metastore:
                     cluster_column_value <= col_cluster_max,
                 )
             )
-            for (col, op, value) in optional_where_clauses:
+            for col, op, value in optional_where_clauses:
+                if col not in self.optional_columns:
+                    continue
                 col_min = self.table.columns[f"{col}_min"]
                 col_max = self.table.columns[f"{col}_max"]
                 if op == ">=":
