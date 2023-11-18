@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>lakeshack.lakeshack &mdash; Lakeshack 0.2.2 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <title>lakeshack.lakeshack &mdash; Lakeshack 0.2.3 documentation</title><link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
@@ -32,7 +32,7 @@
               <img src="../../_static/lakeshack_128.png" class="logo" alt="Logo"/>
           </a>
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -137,7 +137,7 @@
 <span class="kn">import</span> <span class="nn">pyarrow.compute</span> <span class="k">as</span> <span class="nn">pc</span>
 <span class="kn">import</span> <span class="nn">pyarrow.dataset</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="k">as</span> <span class="nn">sa</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">lakeshack.metastore</span> <span class="kn">import</span> <span class="n">Metastore</span>
 
@@ -249,7 +249,7 @@
         <span class="p">)</span>
 
         <span class="c1"># Handle optional where clauses</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">optional_where_clauses</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">optional_where_clauses</span><span class="p">:</span>
             <span class="n">table_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">s3_table</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
             <span class="c1"># Handle datetime and date the same for s3.select</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">table_col</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
@@ -378,6 +378,38 @@
             <span class="s2">&quot;BytesReturned&quot;</span><span class="p">:</span> <span class="n">bytes_returned</span><span class="p">,</span>
         <span class="p">}</span>
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_clean_s3_lists</span><span class="p">(</span>
+        <span class="n">records</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">query_schema_safe</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Schema</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        s3.select returns any List in the parquet files as a list of dictionaries as</span>
+<span class="sd">        [{&quot;element&quot;: v1}, {&quot;element&quot;: v2}]. This function will convert back to a</span>
+<span class="sd">        standard list [v1, v2] in order to properly convert the data into a pyarrow</span>
+<span class="sd">        Table.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        records : List[Dict]</span>
+<span class="sd">            Records returned by the s3.select query</span>
+<span class="sd">        query_schema_safe : pa.Schema</span>
+<span class="sd">            The appropriate schema of the data coming back from s3.select</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict]</span>
+<span class="sd">            Cleaned version of the data that can be converted to pyarrow.Table</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">field_name</span><span class="p">,</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">query_schema_safe</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">query_schema_safe</span><span class="o">.</span><span class="n">types</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">field_type</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">ListType</span><span class="p">):</span>
+                    <span class="n">record</span><span class="p">[</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;element&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">record</span><span class="p">[</span><span class="n">field_name</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">records</span>
+
 <div class="viewcode-block" id="Lakeshack.query_s3_select"><a class="viewcode-back" href="../../modules.html#lakeshack.lakeshack.Lakeshack.query_s3_select">[docs]</a>    <span class="k">def</span> <span class="nf">query_s3_select</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cluster_column_values</span><span class="p">,</span>
@@ -467,6 +499,9 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]:</span>
                         <span class="n">n_records</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Lakeshack</span><span class="o">.</span><span class="n">_clean_s3_lists</span><span class="p">(</span>
+                            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">query_schema_safe</span>
+                        <span class="p">)</span>
                         <span class="n">batches</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="n">pa</span><span class="o">.</span><span class="n">RecordBatch</span><span class="o">.</span><span class="n">from_pylist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">query_schema_safe</span><span class="p">)</span>
                         <span class="p">)</span>
