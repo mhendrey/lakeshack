@@ -27,7 +27,7 @@ from pyarrow import fs
 import pyarrow.compute as pc
 import pyarrow.dataset as ds
 import sqlalchemy as sa
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from lakeshack.metastore import Metastore
 
@@ -139,7 +139,7 @@ class Lakeshack:
         )
 
         # Handle optional where clauses
-        for (col, op, value) in optional_where_clauses:
+        for col, op, value in optional_where_clauses:
             table_col = self.s3_table.columns[col]
             # Handle datetime and date the same for s3.select
             if isinstance(table_col.type, sa.DateTime) or isinstance(
@@ -268,6 +268,38 @@ class Lakeshack:
             "BytesReturned": bytes_returned,
         }
 
+    @staticmethod
+    def _clean_s3_lists(
+        records: List[Dict], query_schema_safe: pa.Schema
+    ) -> List[Dict]:
+        """
+        s3.select returns any List in the parquet files as a list of dictionaries as
+        [{"element": v1}, {"element": v2}]. This function will convert back to a
+        standard list [v1, v2] in order to properly convert the data into a pyarrow
+        Table.
+
+        Parameters
+        ----------
+        records : List[Dict]
+            Records returned by the s3.select query
+        query_schema_safe : pa.Schema
+            The appropriate schema of the data coming back from s3.select
+
+
+        Returns
+        -------
+        List[Dict]
+            Cleaned version of the data that can be converted to pyarrow.Table
+        """
+        for record in records:
+            for field_name, field_type in zip(
+                query_schema_safe.names, query_schema_safe.types
+            ):
+                if isinstance(field_type, pa.ListType):
+                    record[field_name] = [e["element"] for e in record[field_name]]
+
+        return records
+
     def query_s3_select(
         self,
         cluster_column_values,
@@ -357,6 +389,9 @@ class Lakeshack:
                 else:
                     if data["data"]:
                         n_records += len(data["data"])
+                        data["data"] = Lakeshack._clean_s3_lists(
+                            data["data"], query_schema_safe
+                        )
                         batches.append(
                             pa.RecordBatch.from_pylist(data["data"], query_schema_safe)
                         )
